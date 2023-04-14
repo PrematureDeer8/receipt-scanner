@@ -1,73 +1,34 @@
 
-eel.expose(read_path)
-function read_path(type){
-    let input = document.getElementById("folder-input");
-    let path = input.value;
-    if(path == ""){
-        console.log("Undefined");
-    }else{
-        console.log(path);
+eel.expose(display_images)
+function display_images(file_names){
+    console.log(file_names)
+    let center = document.querySelector(".center")
+    for(let name of file_names){
+        let image = document.createElement("img");
+        image.src = "images/scanned_receipts/"+name;
+        image.width = 300
+        image.height = 300
+        // image.style.margin = 50
+        center.append(image);
     }
 }
-
-let fileHandles;
-let allContent;
-const options = {
- multiple: true,
-};
- 
-document.querySelector(".pick-file").onclick = async () => {
- fileHandles = await window.showOpenFilePicker(options);
- 
- allContent = await Promise.all(
-   fileHandles.map(async (fileHandle) => {
-     const file = await fileHandle.getFile();
-    //  const content = await file.arrayBuffer();
-     return file;
-   })
- );
- 
- let paragraphs = document.querySelectorAll(".image-name");
- if(paragraphs.length > 0){
-    for(let paragraph of paragraphs){
-        paragraph.remove();
+eel.expose(display_parsed_images)
+function display_parsed_images(file_names){
+    let line_break = document.createElement("br");
+    let center = document.querySelector(".center");
+    center.append(line_break);
+    for(let name of file_names){
+        let image = document.createElement('img');
+        image.src = "images/parsed_receipts/"+name;
+        image.width = 100
+        image.height = 300
+        center.append(image);
     }
- }
-
- for(let image of allContent){
-    let p = document.createElement("p");
-    p.className = "image-name"
-    p.innerText = image.name;
-    document.querySelector(".center").append(p)
- }
+    console.log(file_names)
+}
+document.querySelector(".pick-file").onclick = () => {
+    eel.windowfilepicker();
 };
-document.querySelector(".submit").onclick = async () =>{
-    if(allContent == undefined){
-        alert("No images selected");
-    }else{
-        let data = [];
-        for(let file of allContent){
-            let reader = new FileReader();
-            let blob = new Blob([await file.text()],{type: "text"});
-            reader.readAsDataURL(blob);
-            reader.onloadend = function () {
-                var string = reader.result;
-                if(allContent.length > 1){
-                   data.push(string); 
-                }else{
-                    data = string
-                    eel.pass_images(data);
-                }
-                
-            }
-            
-        }
-        console.log(data)
-       if(data.length != 0 ){
-            console.log(data)
-            eel.pass_images(data);
-       }
-        
-    }
-    
+document.querySelector(".submit").onclick = () => {
+    eel.onsubmit();
 }
