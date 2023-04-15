@@ -5,6 +5,7 @@ import cv2 as cv;
 import re;
 import os
 from parse_receipts import parse_receipts
+from amazon_ocr import amazon_ocr
 
 
 pattern = re.compile(r"[\w,-]+.jpg")
@@ -17,6 +18,7 @@ def windowfilepicker():
         os.remove("web/images/scanned_receipts/{}".format(file))
     tkinter.Tk().withdraw(); # prevents an empty tkinter window from appearing
     file_paths = list(filedialog.askopenfilenames());
+    #use os.replace instead
     file_names = [];
     for index, path in enumerate(file_paths):
         image_mat = cv.imread(path);
@@ -25,11 +27,16 @@ def windowfilepicker():
     eel.display_images(file_names);
 
 @eel.expose
-def onsubmit():
+def parse():
     directory="web/images/parsed_receipts/";
     for file in os.listdir(directory):
         os.remove(directory+file)
     images = parse_receipts();
     eel.display_parsed_images(images);
+
+@eel.expose
+def ocr():
+    amazon_ocr();
+    # print("done")
 
 eel.start("index.html");

@@ -1,4 +1,3 @@
-
 eel.expose(display_images)
 function display_images(file_names){
     console.log(file_names)
@@ -30,5 +29,10 @@ document.querySelector(".pick-file").onclick = () => {
     eel.windowfilepicker();
 };
 document.querySelector(".submit").onclick = () => {
-    eel.onsubmit();
+    eel.parse();
+    $("#ocr").load("ocr.html");
+}
+function submit_ocr() {
+    eel.ocr();
+    console.log("Task has been completed excel file created")
 }

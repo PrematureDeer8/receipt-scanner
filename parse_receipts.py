@@ -13,7 +13,8 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
         images.append(cv.imread("{}/{}".format(dir,name)));
         #move unread receipts to read receipts
         # os.remove("{}/{}".format(dir,name));
-    if(len(images) > 0):
+    #len(images) > 0
+    if(images):
         for image in images:
             if(type(image) == type(None)):
                 sys.exit("Image cannot be read")
