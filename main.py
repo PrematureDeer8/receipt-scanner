@@ -36,6 +36,7 @@ def parse():
 
 @eel.expose
 def ocr():
+    # os.remove("expenses.xlsx")
     amazon_ocr();
     # print("done")
 
