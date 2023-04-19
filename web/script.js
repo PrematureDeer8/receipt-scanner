@@ -1,14 +1,43 @@
 eel.expose(display_images)
 function display_images(file_names){
-    console.log(file_names)
-    let center = document.querySelector(".center")
+    prev_buttons = document.querySelectorAll(".image-tabs");
+    prev_images = document.getElementsByTagName("img");
+    if(prev_buttons.length > 0 ){
+            //everything shifts up one when you delete
+            for(var i = 0; i < prev_buttons.length; i++){
+                prev_buttons[i].remove();
+                prev_images[0].remove();
+                // console.log(prev_buttons[i]);
+        }
+    }
+    document.querySelector(".tab-content").style.display = "block";
+    let image_display = document.querySelector(".image-tab")
+    let image_content = document.querySelector(".tab-content")
     for(let name of file_names){
+        let image_button = document.createElement("button");
+        image_button.className = "image-tabs";
+        image_button.innerText = "Image"+(file_names.indexOf(name)+1);
         let image = document.createElement("img");
+        if(file_names.indexOf(name) != 0){
+            image.style.display = "none";
+        }
+        image.id = name;
+        image.className = "image-content";
         image.src = "images/scanned_receipts/"+name;
-        image.width = 300
-        image.height = 300
-        // image.style.margin = 50
-        center.append(image);
+        //*
+        image_button.addEventListener("click", function (){
+            let tab_images;
+            tab_images = document.getElementsByTagName("img");
+            for(let image of tab_images){
+                image.style.display = "none";
+            }
+            document.getElementById(name).style.display = "block";
+
+        });
+        
+        image_display.append(image_button)
+        image_content.append(image);
+        
     }
 }
 eel.expose(display_parsed_images)
@@ -23,7 +52,7 @@ function display_parsed_images(file_names){
         image.height = 300
         center.append(image);
     }
-    console.log(file_names)
+    // console.log(file_names)
 }
 document.querySelector(".pick-file").onclick = () => {
     eel.windowfilepicker();
