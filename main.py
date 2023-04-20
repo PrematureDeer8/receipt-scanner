@@ -31,8 +31,8 @@ def parse():
     directory="web/images/parsed_receipts/";
     for file in os.listdir(directory):
         os.remove(directory+file)
-    images = parse_receipts();
-    eel.display_parsed_images(images);
+    correspondence = parse_receipts();
+    eel.display_parsed_images(correspondence);
 
 @eel.expose
 def ocr():

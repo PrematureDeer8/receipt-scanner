@@ -6,24 +6,24 @@ from deskew import determine_skew
 import os
 
 def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed_receipts",counter=0):
+    correspondence = {};
     #get unread receipts
     images = [];
     names = os.listdir(dir)
     for name in names:
         images.append(cv.imread("{}/{}".format(dir,name)));
+        correspondence[name] = [];
         #move unread receipts to read receipts
         # os.remove("{}/{}".format(dir,name));
     #len(images) > 0
     if(images):
-        for image in images:
-            if(type(image) == type(None)):
-                sys.exit("Image cannot be read")
+        for i, image in enumerate(images):
             iwidth , iheight = image.shape[:2]
             gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
             blur = cv.blur(gray,(5,5))
             ret, mask = cv.threshold(blur,175,255,cv.THRESH_BINARY)
             contours, hieracrhy = cv.findContours(mask,cv.RETR_EXTERNAL ,cv.CHAIN_APPROX_NONE)
-            cv.drawContours(image, contours,-1,(0,0,255),thickness=5)
+            # cv.drawContours(image, contours,-1,(0,0,255),thickness=5)
             sort = sorted(contours, key=lambda element: len(element),reverse=True)
             filtered = [];
             #cleanup
@@ -75,9 +75,9 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 else:
                     w = int(rotate[index][2][0]//2)
                     h = int(rotate[index][2][1]//2)
-                cv.circle(image,(int(rotate[index][0][0]),int(rotate[index][0][1])),50,(0,0,255),thickness=-1)
-                cv.line(image,(int(rotate[index][0][0]-w), int(rotate[index][0][1])),(int(rotate[index][0][0]+w),int(rotate[index][0][1])),(index*100,255,0),30)
-                cv.line(image,(int(rotate[index][0][0]),int(rotate[index][0][1]-h)),(int(rotate[index][0][0]),int(rotate[index][0][1]+h)),(255,0,index*100),30)
+                # cv.circle(image,(int(rotate[index][0][0]),int(rotate[index][0][1])),50,(0,0,255),thickness=-1)
+                # cv.line(image,(int(rotate[index][0][0]-w), int(rotate[index][0][1])),(int(rotate[index][0][0]+w),int(rotate[index][0][1])),(index*100,255,0),30)
+                # cv.line(image,(int(rotate[index][0][0]),int(rotate[index][0][1]-h)),(int(rotate[index][0][0]),int(rotate[index][0][1]+h)),(255,0,index*100),30)
                 y = center_point[1]-h 
                 x = center_point[0]-w
                 x1 = center_point[0]+w
@@ -99,5 +99,6 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 rotated = cv.warpAffine(receipt,rot_mat,(receipt.shape[1],receipt.shape[0]))
                 ret, mask = cv.threshold(rotated,190,255,cv.THRESH_BINARY)
                 cv.imwrite("{}/receipt".format(parsedir)+str((counter))+".jpg",mask);
+                correspondence[names[i]].append("receipt"+str(counter));
                 counter += 1;
-    return os.listdir(parsedir);
+    return correspondence;

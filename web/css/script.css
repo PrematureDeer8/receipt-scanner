@@ -1,7 +1,7 @@
 .image-tab {
     overflow: hidden;
     border: 1px solid #ccc;
-    background-color: #f1f1f1;
+    background-color: #36454f;
 }
 
 .image-tab button {
@@ -12,33 +12,41 @@
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
+    color: white;
 }
 .image-tab button:hover{
-    background-color: #ddd;
+    background-color: #5e7788;
 }
 
 .image-tab button.active{
-    background-color: #ccc;
+    background-color: #232527;
 }
 
 .tab-content{
     display: none;
     padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
+    border: 3px solid #36454f;
+    border-width: thin medium medium;
+    border-bottom-left-radius: 2%;
+    border-bottom-right-radius: 2%;
+    background-color: #fffffa;
 }
 
 img {
     max-width: 500px;
-    max-height: 950px;
+    max-height: 700px;
     width: auto;
     height: auto;
+    border-style: solid;
+    border-radius: 2%;
+    border-color: #008080;
+    border-width: thin medium thin;
 }
 .submit {
     float: right;
     margin-right: 30px;
     margin-top: 15px;
-    background-color:skyblue;
+    background-color:#bdfbfb;
     width: 75px;
     height: 20px;
     border-radius: 10%;    

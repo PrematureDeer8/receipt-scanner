@@ -15,44 +15,52 @@ function display_images(file_names){
     let image_content = document.querySelector(".tab-content")
     for(let name of file_names){
         let image_button = document.createElement("button");
-        image_button.className = "image-tabs";
+        image_button.className = "image-tabs active";
         image_button.innerText = "Image"+(file_names.indexOf(name)+1);
+        let grouper = document.createElement("div");
+        grouper.id = name;
+        grouper.className = "grouper";
         let image = document.createElement("img");
         if(file_names.indexOf(name) != 0){
-            image.style.display = "none";
+            grouper.style.display = "none";
+            image_button.className = "image-tabs"
         }
-        image.id = name;
         image.className = "image-content";
         image.src = "images/scanned_receipts/"+name;
         //*
         image_button.addEventListener("click", function (){
-            let tab_images;
-            tab_images = document.getElementsByTagName("img");
-            for(let image of tab_images){
-                image.style.display = "none";
+            let buttons = document.querySelectorAll(".image-tabs");
+            for(let button of buttons){
+                button.className = "image-tabs"
+            }
+            let dividers;
+            dividers = document.querySelectorAll(".grouper");
+            for(let divider of dividers){
+                divider.style.display = "none";
             }
             document.getElementById(name).style.display = "block";
+            image_button.className += " active";
 
         });
-        
+        grouper.append(image);
         image_display.append(image_button)
-        image_content.append(image);
+        image_content.append(grouper);
         
     }
 }
 eel.expose(display_parsed_images)
-function display_parsed_images(file_names){
-    let line_break = document.createElement("br");
-    let center = document.querySelector(".center");
-    center.append(line_break);
-    for(let name of file_names){
-        let image = document.createElement('img');
-        image.src = "images/parsed_receipts/"+name;
-        image.width = 100
-        image.height = 300
-        center.append(image);
+function display_parsed_images(correspondence){
+    const og_imgs  = Object.keys(correspondence);
+    for(let og_img of og_imgs){
+        let divider = document.getElementById(og_img);
+        for(let parsed_image of correspondence[og_img]){
+            let image = document.createElement("img");
+            image.src = "images/parsed_receipts/"+parsed_image+".jpg";
+            // image.width = 100
+            // image.height = 300
+            divider.append(image);
+        } 
     }
-    // console.log(file_names)
 }
 document.querySelector(".pick-file").onclick = () => {
     eel.windowfilepicker();
