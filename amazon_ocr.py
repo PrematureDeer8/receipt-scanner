@@ -40,15 +40,16 @@ def amazon_ocr():
         df = pd.DataFrame()
 
 
-    counter = len(df)
+    # counter = len(df)
     receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts'
 
-    digits = re.compile(r'receipt(\d+).jpg')
+    # digits = re.compile(r'receipt(\d+).jpg')
 
-    for receipt in filter(
-        lambda file: int(digits.match(file.name)[1]) >= counter, 
-        receipts.iterdir()
-    ):
+    # for receipt in filter(
+    #     lambda file: int(digits.match(file.name)[1]) >= counter, 
+    #     receipts.iterdir()
+    # ):
+    for receipt in receipts.iterdir():
         image = receipt.read_bytes()
         response = client.detect_text(Image={"Bytes":image})
 
@@ -150,6 +151,7 @@ def amazon_ocr():
         database = pd.DataFrame(expense);
         combined_df = pd.concat([df, database], ignore_index=True)
         combined_df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
+        # none_ df = filter(lambda element: element == None, )
         for index, (y, year_df) in enumerate(combined_df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
             excel_name = (y.strftime('%Y')+"expenses.xlsx")
             # DEBUG: datetime_format and date_format parameters do not work when using openpyxl as the engin

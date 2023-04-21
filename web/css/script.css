@@ -37,10 +37,6 @@ img {
     max-height: 700px;
     width: auto;
     height: auto;
-    border-style: solid;
-    border-radius: 2%;
-    border-color: #008080;
-    border-width: thin medium thin;
 }
 .submit {
     float: right;
@@ -51,4 +47,13 @@ img {
     height: 20px;
     border-radius: 10%;    
 
+}
+.image-content{
+    padding-right: 10%;
+}
+.parsed{
+    padding-right: 2%;
+}
+.submit-ocr{
+    background-color: lightgreen;
 }

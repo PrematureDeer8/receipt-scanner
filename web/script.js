@@ -56,20 +56,26 @@ function display_parsed_images(correspondence){
         for(let parsed_image of correspondence[og_img]){
             let image = document.createElement("img");
             image.src = "images/parsed_receipts/"+parsed_image+".jpg";
-            // image.width = 100
-            // image.height = 300
+            image.className = "parsed";
             divider.append(image);
         } 
     }
 }
 document.querySelector(".pick-file").onclick = () => {
     eel.windowfilepicker();
+    document.querySelector(".submit").disabled = false;
 };
 document.querySelector(".submit").onclick = () => {
+    document.querySelector(".submit").disabled = true;
     eel.parse();
     $("#ocr").load("ocr.html");
 }
 function submit_ocr() {
+    // console.log(document.querySelector(".submit-ocr"))
+    document.querySelector(".submit-ocr").disabled = true;
     eel.ocr();
-    console.log("Task has been completed excel file created")
+}
+eel.expose(reable_excel_button)
+function reable_excel_button(){
+    document.querySelector(".submit-ocr").disabled = false;
 }
