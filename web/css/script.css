@@ -57,3 +57,16 @@ img {
 .submit-ocr{
     background-color: lightgreen;
 }
+.left-bar.info-bar{
+    border-left: 6px solid #2196F3;
+    background-color: #bdfbfb;
+}
+.left-bar.danger-bar{
+    border-left: 6px solid #f32121;
+    background-color: #fbbdbd;
+}
+.bar-container{
+    height: 58.8px;
+    margin-bottom: 10px;
+    padding: 0.01em 16px;
+}

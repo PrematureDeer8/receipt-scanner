@@ -8,7 +8,8 @@ from parse_receipts import parse_receipts
 from amazon_ocr import amazon_ocr
 
 
-pattern = re.compile(r"[\w,-]+.jpg")
+pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
+file_types = [".jpg",".png",".pdf"]
 
 eel.init("web");
 
@@ -17,6 +18,20 @@ def windowfilepicker():
     directory="web/images/parsed_receipts/";
     tkinter.Tk().withdraw(); # prevents an empty tkinter window from appearing
     file_paths = list(filedialog.askopenfilenames());
+    for path in file_paths:
+        counter = 0;
+        for type in file_types:
+            if(type in path):
+                break;
+            else:
+                counter += 1;
+        #path is not a valid image type
+        if(counter == len(file_types)):
+            file_paths.remove(path);
+            message = str(path) + " is not a correct image file!";
+            if(len(file_paths)):
+                message += "\nPreceeding with other files.";
+            eel.error_message(message);
     if(file_paths):
         for file in os.listdir(directory):
             os.remove(directory+file)

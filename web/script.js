@@ -62,10 +62,12 @@ function display_parsed_images(correspondence){
     }
 }
 document.querySelector(".pick-file").onclick = () => {
+    document.querySelector(".bar-container").style.display = "none";
     eel.windowfilepicker();
     document.querySelector(".submit").disabled = false;
 };
 document.querySelector(".submit").onclick = () => {
+    document.querySelector(".bar-container").style.display = "none";
     document.querySelector(".submit").disabled = true;
     eel.parse();
     $("#ocr").load("ocr.html");
@@ -78,4 +80,12 @@ function submit_ocr() {
 eel.expose(reable_excel_button)
 function reable_excel_button(){
     document.querySelector(".submit-ocr").disabled = false;
+}
+eel.expose(error_message)
+function error_message(message){
+    let p = document.getElementById("message");
+    p.innerText = message;
+    let parent = p.parentElement;
+    parent.className += " danger-bar"
+    parent.style.display = "block"
 }
