@@ -67,6 +67,7 @@ function display_parsed_images(correspondence){
 }
 document.querySelector(".pick-file").onclick = () => {
     document.querySelector(".bar-container").style.display = "none";
+    document.querySelector(".pick-file").disabled = true;
     eel.windowfilepicker();
 };
 document.querySelector(".submit").onclick = () => {
@@ -101,4 +102,8 @@ function progress_bar(done){
     progress.innerText = Math.round((width)*100) + "%";
     progress.style = "width: " + progress.innerText;
 
+}
+eel.expose(reable_browse);
+function reable_browse(){
+    document.querySelector(".pick-file").disabled = false;
 }

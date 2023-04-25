@@ -43,6 +43,7 @@ def windowfilepicker():
             file_names.append(pattern.findall(path)[0])
             cv.imwrite("web/images/scanned_receipts/{}".format(file_names[index]),image_mat);
         eel.display_images(file_names);
+    eel.reable_browse();
 
 @eel.expose
 def parse():

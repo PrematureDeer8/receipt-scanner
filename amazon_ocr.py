@@ -5,6 +5,7 @@ import pandas as pd
 import dateutil.parser
 import pathlib
 import warnings
+import eel
 
 date_patterns = ["[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{4}","[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{2}"]
 time_patterns = ["[0-9][0-9]\:[0-9][0-9]\:[0-9][0-9]\s*\D\D","[0-9][0-9]\:[0-5][0-9]\s*\D\D","[0-9]\:[0-5][0-9]\s*\D\D"]
@@ -20,7 +21,12 @@ def amazon_ocr():
                             region_name=config.REGION)
 
     excel_files = sorted(list(pathlib.Path('.').glob("*.xlsx")));
-
+    #if the file is open get then excel has another file create ~$filename.xlsx
+    #dont get that file
+    for file in excel_files:
+        if(str(file)[:2] == "~$"):
+            eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
+            return;
     expense = { 
             "Filename": [],
             "DateTime": [],
@@ -114,6 +120,8 @@ def amazon_ocr():
                 if(char.isdigit()):
                     str_number += char;
             numbers.append(int(str_number));
+        expense["Filename"].append(receipt)
+        message = str(receipt)
         if(numbers):
             total = max(numbers)/100;
         else:
@@ -121,13 +129,14 @@ def amazon_ocr():
         expense["Total"].append(total)
         if(len(cards) != 0):
             expense["Card"].append(int(cards[0]))
+            message += "\n Card not found in receipt"
         else:
             expense["Card"].append(None)
         if(len(dates) > 0):
             expense["DateTime"].append(dateutil.parser.parse(dates[0]+" "+times[0]));
         else:
             expense["DateTime"].append(None);
-        expense["Filename"].append(receipt)
+            message += "\n Date not found in receipt"
         if(
             re.search("FUEL", string.upper()) != None 
             or re.search("PUMP#\s*\d+", string.upper()) != None
@@ -145,6 +154,10 @@ def amazon_ocr():
             expense["Type"].append("GROCERIES");
         else:
             expense["Type"].append(None);
+            message += "\n Type not found in receipt"
+        # print(message);
+        if(message != str(receipt)):
+            eel.error_message(message);
 
     # print(expense);
     if(len(expense["DateTime"]) > 0):
