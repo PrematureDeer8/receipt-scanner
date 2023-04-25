@@ -2,17 +2,17 @@ eel.expose(display_images)
 function display_images(file_names){
     document.querySelector(".progress").style = "width: 0%";
     document.querySelector(".submit").disabled = false;
-    prev_buttons = document.querySelectorAll(".image-tabs");
-    prev_images = document.getElementsByTagName("img");
-    grouper = document.querySelectorAll(".grouper");
-    if(prev_buttons.length > 0 ){
-            //everything shifts up one when you delete
-            for(var i = 0; i < prev_buttons.length; i++){
-                prev_buttons[i].remove();
-                prev_images[0].remove();
-                grouper[0].remove();
-                // console.log(prev_buttons[i]);
-        }
+    let prev_buttons = document.querySelectorAll(".image-tabs");
+    let prev_images = document.getElementsByTagName("img");
+    let grouper = document.querySelectorAll(".grouper");
+    for(let button of prev_buttons){
+        button.remove();
+    }
+    for(let image of prev_images){
+        image.remove();
+    }
+    for(let group of grouper){
+        group.remove();
     }
     document.querySelector(".tab-content").style.display = "block";
     let image_display = document.querySelector(".image-tab")
@@ -94,9 +94,9 @@ function error_message(message){
 }
 eel.expose(progress_bar)
 function progress_bar(done){
+    document.querySelector(".progress-bar").style = "display: block;";
     let total_images = document.querySelectorAll(".image-tabs").length;
     let width = (done)/total_images;
-    console.log(done);
     let progress = document.querySelector(".progress");
     progress.innerText = Math.round((width)*100) + "%";
     progress.style = "width: " + progress.innerText;
