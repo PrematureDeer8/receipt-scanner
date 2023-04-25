@@ -1,9 +1,10 @@
 import cv2 as cv;
 import numpy as np;
 from sympy import Polygon, Point
-import sys
 from deskew import determine_skew
 import os
+import eel
+
 
 def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed_receipts",counter=0):
     correspondence = {};
@@ -25,6 +26,7 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
             contours, hieracrhy = cv.findContours(mask,cv.RETR_EXTERNAL ,cv.CHAIN_APPROX_NONE)
             # cv.drawContours(image, contours,-1,(0,0,255),thickness=5)
             sort = sorted(contours, key=lambda element: len(element),reverse=True)
+            eel.progress_bar(i+.2)
             filtered = [];
             #cleanup
             for index in range(0,len(sort)):
@@ -43,7 +45,7 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                             filtered.append(sort[index])
 
 
-
+            eel.progress_bar(i+.4)
 
             seperate_images = [];
             rotate = [];
@@ -56,6 +58,7 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 seperate_images.append(np.zeros(image.shape[:2],dtype="uint8"))
                 cv.drawContours(seperate_images[index],[box],0,255,-1)
                 cv.drawContours(image,[box],0,(0,255,0),thickness=5)
+            eel.progress_bar(i+.6)
             receipts = []
             for index, seperate in enumerate(seperate_images):
                 receipt = cv.bitwise_and(seperate, gray)
@@ -89,6 +92,7 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 
                 cropped = receipt[y: y1, x:x1]
                 receipts.append(cropped);
+            eel.progress_bar(i+.8)
             #deskew
             for index, receipt in enumerate(receipts):
                 # cv.imshow("receipt"+str(index+1),receipt);
@@ -101,4 +105,5 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 cv.imwrite("{}/receipt".format(parsedir)+str((counter))+".jpg",mask);
                 correspondence[names[i]].append("receipt"+str(counter));
                 counter += 1;
+            eel.progress_bar(i+1);
     return correspondence;

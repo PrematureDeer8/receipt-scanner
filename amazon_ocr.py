@@ -146,7 +146,7 @@ def amazon_ocr():
         else:
             expense["Type"].append(None);
 
-    print(expense);
+    # print(expense);
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
         combined_df = pd.concat([df, database], ignore_index=True)

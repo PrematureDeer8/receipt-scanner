@@ -6,15 +6,6 @@ import re;
 import os
 from parse_receipts import parse_receipts
 from amazon_ocr import amazon_ocr
-import sentry_sdk
-sentry_sdk.init(
-    dsn="https://8b0a97d928b646619ccfde7442f6afce@o4505065324544000.ingest.sentry.io/4505065327099904",
-
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0
-)
 
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
 file_types = [".jpg",".png",".pdf"]
@@ -23,7 +14,6 @@ eel.init("web");
 
 @eel.expose
 def windowfilepicker():
-    divide_by_zero = 1/0
     directory="web/images/parsed_receipts/";
     tkinter.Tk().withdraw(); # prevents an empty tkinter window from appearing
     file_paths = list(filedialog.askopenfilenames());

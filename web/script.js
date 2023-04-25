@@ -1,12 +1,16 @@
 eel.expose(display_images)
 function display_images(file_names){
+    document.querySelector(".progress").style = "width: 0%";
+    document.querySelector(".submit").disabled = false;
     prev_buttons = document.querySelectorAll(".image-tabs");
     prev_images = document.getElementsByTagName("img");
+    grouper = document.querySelectorAll(".grouper");
     if(prev_buttons.length > 0 ){
             //everything shifts up one when you delete
             for(var i = 0; i < prev_buttons.length; i++){
                 prev_buttons[i].remove();
                 prev_images[0].remove();
+                grouper[0].remove();
                 // console.log(prev_buttons[i]);
         }
     }
@@ -64,7 +68,6 @@ function display_parsed_images(correspondence){
 document.querySelector(".pick-file").onclick = () => {
     document.querySelector(".bar-container").style.display = "none";
     eel.windowfilepicker();
-    document.querySelector(".submit").disabled = false;
 };
 document.querySelector(".submit").onclick = () => {
     document.querySelector(".bar-container").style.display = "none";
@@ -88,4 +91,14 @@ function error_message(message){
     let parent = p.parentElement;
     parent.className += " danger-bar"
     parent.style.display = "block"
+}
+eel.expose(progress_bar)
+function progress_bar(done){
+    let total_images = document.querySelectorAll(".image-tabs").length;
+    let width = (done)/total_images;
+    console.log(done);
+    let progress = document.querySelector(".progress");
+    progress.innerText = Math.round((width)*100) + "%";
+    progress.style = "width: " + progress.innerText;
+
 }

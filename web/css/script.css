@@ -45,7 +45,7 @@ img {
     background-color:#bdfbfb;
     width: 75px;
     height: 20px;
-    border-radius: 10%;    
+    border-radius: 5px;    
 
 }
 .image-content{
@@ -69,4 +69,21 @@ img {
     height: 58.8px;
     margin-bottom: 10px;
     padding: 0.01em 16px;
+}
+.progress-bar{
+    margin-top: 10px;
+    background-color: rgb(239, 239, 239);
+    width: 100%;
+    line-height: 25px;
+    border-radius: 25px;
+}
+.progress{
+    line-height: 25px;
+    border-radius: 25px;
+    background-color: #2196F3;
+    color: whitesmoke;
+    width: 0%;
+    transition: .4s linear;
+    transition-property: width, background-color;
+    text-align: center;
 }
