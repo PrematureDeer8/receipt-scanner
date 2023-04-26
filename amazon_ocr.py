@@ -13,14 +13,16 @@ card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
 
-def amazon_ocr():
-
+def amazon_ocr(desktop=(pathlib.Path.home() / "Desktop")):
     client = boto3.client("rekognition",
                             aws_access_key_id=config.ACCESS_KEY,
                             aws_secret_access_key=config.SECRET_KEY,
                             region_name=config.REGION)
-
-    excel_files = sorted(list(pathlib.Path('.').glob("*.xlsx")));
+    expenses_folder = desktop / "expenses";
+    if(expenses_folder.exists()):
+        excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
+    else:
+        expenses_folder.mkdir();
     #if the file is open get then excel has another file create ~$filename.xlsx
     #dont get that file
     for file in excel_files:
@@ -182,7 +184,7 @@ def amazon_ocr():
                         'mode': 'a',
                         'if_sheet_exists': 'replace'
                     }
-            with warnings.catch_warnings(), pd.ExcelWriter(excel_name, engine='openpyxl', **params) as writer:
+            with warnings.catch_warnings(), pd.ExcelWriter(expenses_folder / excel_name, engine='openpyxl', **params) as writer:
                 warnings.simplefilter(action='ignore')
                 # for index, (_, group_df) in enumerate(combined_df.groupby(pd.Grouper(key='DateTime', freq='M'))):
                 for (_, group_df) in year_df.groupby(pd.Grouper(key='DateTime', freq='M')):
