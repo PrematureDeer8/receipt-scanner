@@ -131,8 +131,8 @@ def amazon_ocr(desktop=(pathlib.Path.home() / "Desktop")):
         expense["Total"].append(total)
         if(len(cards) != 0):
             expense["Card"].append(int(cards[0]))
-            message += "\n Card not found in receipt"
         else:
+            message += "\n Card not found in receipt"
             expense["Card"].append(None)
         if(len(dates) > 0):
             expense["DateTime"].append(dateutil.parser.parse(dates[0]+" "+times[0]));

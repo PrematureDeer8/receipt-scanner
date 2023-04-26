@@ -105,3 +105,20 @@ img {
 .pick-file:disabled{
     opacity: 0.7;
 }
+
+.slide-right{
+    animation-name: slide-right;
+    animation-duration: 2s;
+    animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1)
+}
+
+@keyframes slide-right{
+    from {
+        width: 10%;
+        opacity: 25%;
+    }
+    to {
+        opacity: 100%;
+        width: 96.25%;
+    }
+}
