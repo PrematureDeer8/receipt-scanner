@@ -13,7 +13,7 @@ card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
 
-def amazon_ocr(desktop=(pathlib.Path.home() / "Desktop")):
+def amazon_ocr(desktop=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     client = boto3.client("rekognition",
                             aws_access_key_id=config.ACCESS_KEY,
                             aws_secret_access_key=config.SECRET_KEY,
@@ -25,10 +25,11 @@ def amazon_ocr(desktop=(pathlib.Path.home() / "Desktop")):
         expenses_folder.mkdir();
     #if the file is open get then excel has another file create ~$filename.xlsx
     #dont get that file
-    for file in excel_files:
-        if(str(file)[:2] == "~$"):
-            eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
-            return;
+    if(excel_files):
+        for file in excel_files:
+            if(str(file)[:2] == "~$"):
+                eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
+                return;
     expense = { 
             "Filename": [],
             "DateTime": [],
