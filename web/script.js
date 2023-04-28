@@ -107,3 +107,23 @@ eel.expose(reable_browse);
 function reable_browse(){
     document.querySelector(".pick-file").disabled = false;
 }
+let bool = true;
+document.querySelector(".import-export").onclick = () => {
+    // document.querySelector(".import-export").style.background-color = rgb(193, 193, 193);
+    let dialogbox = document.querySelector(".dialogbox");
+    if(bool){
+        dialogbox.style.width = "0%";
+        dialogbox.style.opacity = "0%"
+        dialogbox.classList.remove("slide-right-small");
+        void dialogbox.offsetWidth; // trigger reflow
+        dialogbox.classList.add('slide-right-small-reverse'); // start animation  
+        bool = false;
+    }else{
+        dialogbox.style.width = "15%";
+        dialogbox.style.opacity = "100%"
+        dialogbox.classList.remove('slide-right-small-reverse'); // start animation
+        void dialogbox.offsetWidth; // trigger reflow
+        dialogbox.classList.add('slide-right-small'); // start animation  
+        bool = true;
+    }
+}

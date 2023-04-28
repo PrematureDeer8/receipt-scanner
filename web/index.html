@@ -8,12 +8,19 @@
     <title>Receipt Reader</title>
 </head>
 <body>
+    <div class="navigation">
+        <a class="import-export" style="float:right">Import/Export</a>
+    </div>
+    <div class="dialogbox slide-right-small">
+        <p>Upload Files</p>
+        <button class="pick-file">Browse</button>
+        <p>Convert to Excel</p>
+        <button class="submit-ocr" onclick="submit_ocr()">Convert</button>
+    </div>
     <h2>Parse Receipts</h2>
     <div class="bar-container left-bar slide-right" style="display: none;">
         <p id="message"></p>
     </div>
-    <label>Enter your receipt or receipts</label>
-    <button class="pick-file">Browse</button>
     <br>
     <div class="image-tab">
 
@@ -32,8 +39,8 @@
     <div id="ocr">
 
     </div>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="/eel.js" ></script>
     <script src="script.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 </body>
 </html>

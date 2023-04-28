@@ -122,3 +122,47 @@ img {
         width: 96.25%;
     }
 }
+.navigation {
+    background-color: rgb(238, 237, 237);
+    overflow: hidden;
+}
+.navigation a{
+    padding: 10px
+}
+.navigation a:hover{
+    background-color: rgb(193, 193, 193);
+}
+.dialogbox{
+    width: 15%;
+    display: block;
+    float: right;
+    background-color: rgb(238, 237, 237);
+    height: 150px;
+    padding: 10px;
+}
+
+.slide-right-small{
+    overflow: clip;
+    animation-name: slide-right-small;
+    animation-duration: 0.35s;
+    animation-timing-function: linear;
+}
+.slide-right-small-reverse{
+    overflow: clip;
+    animation-name: slide-right-small;
+    animation-duration: 0.35s;
+    animation-timing-function: linear;
+    animation-direction: reverse;
+}
+
+@keyframes slide-right-small{
+    from {
+        /* overflow: hidden; */
+        width: 0%;
+        opacity: 10%;
+    }
+    to {
+        opacity: 100%;
+        width: 15%
+    }
+}
