@@ -1,3 +1,6 @@
+body{
+    margin: 0;
+}
 .image-tab {
     overflow: hidden;
     border: 1px solid #ccc;
@@ -18,8 +21,8 @@
     background-color: #5e7788;
 }
 
-.image-tab button.active{
-    background-color: #232527;
+.navigation a.active{
+    background-color: rgb(193, 193, 193);
 }
 
 .tab-content{
@@ -127,7 +130,8 @@ img {
     overflow: hidden;
 }
 .navigation a{
-    padding: 10px
+    padding: 10px;
+    float: left;
 }
 .navigation a:hover{
     background-color: rgb(193, 193, 193);

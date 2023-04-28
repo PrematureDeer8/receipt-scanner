@@ -15,12 +15,12 @@ function display_images(file_names){
         group.remove();
     }
     document.querySelector(".tab-content").style.display = "block";
-    let image_display = document.querySelector(".image-tab")
+    let image_display = document.querySelector(".navigation")
     let image_content = document.querySelector(".tab-content")
     for(let name of file_names){
-        let image_button = document.createElement("button");
+        let image_button = document.createElement("a");
         image_button.className = "image-tabs active";
-        image_button.innerText = "Image"+(file_names.indexOf(name)+1);
+        image_button.innerText = "Img"+(file_names.indexOf(name)+1);
         let grouper = document.createElement("div");
         grouper.id = name;
         grouper.className = "grouper";
@@ -112,6 +112,7 @@ document.querySelector(".import-export").onclick = () => {
     // document.querySelector(".import-export").style.background-color = rgb(193, 193, 193);
     let dialogbox = document.querySelector(".dialogbox");
     if(bool){
+        // document.querySelector(".import-export").style.backgroundColor = "rgb(193, 193, 193);"
         dialogbox.style.width = "0%";
         dialogbox.style.opacity = "0%"
         dialogbox.classList.remove("slide-right-small");
@@ -119,6 +120,7 @@ document.querySelector(".import-export").onclick = () => {
         dialogbox.classList.add('slide-right-small-reverse'); // start animation  
         bool = false;
     }else{
+        // document.querySelector(".import-export").style.backgroundColor = "rgb(238, 237, 237);"
         dialogbox.style.width = "15%";
         dialogbox.style.opacity = "100%"
         dialogbox.classList.remove('slide-right-small-reverse'); // start animation
