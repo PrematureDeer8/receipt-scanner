@@ -15,12 +15,14 @@
             <p>Upload Files</p>
             <button class="pick-file">Browse</button>
             <p>Convert to Excel</p>
-            <button class="submit-ocr" onclick="submit_ocr()">Convert</button>
+            <button class="submit-ocr" onclick="submit_ocr()" disabled>Convert</button>
     </div>
     <div class="margin" style="margin:1.5%">
-        
         <div class="bar-container left-bar slide-right" style="display: none;">
             <p id="message"></p>
+        </div>
+        <div class="progress-bar" style="display: none;">
+            <div class="progress">0%</div>
         </div>
         <br>
         <div class="image-tab">
@@ -29,17 +31,11 @@
         <div class="tab-content">
 
         </div>
-        <div class="progress-bar" style="display: none;">
-            <div class="progress">0%</div>
-        </div>
         <br>
         <br>
         <button class="submit" disabled>Submit</button>
         <br>
         <br>
-        <div id="ocr">
-
-        </div>
     </div>
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="/eel.js" ></script>

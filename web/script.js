@@ -1,5 +1,6 @@
 eel.expose(display_images)
 function display_images(file_names){
+    document.querySelector(".submit-ocr").disabled = true;
     document.querySelector(".progress").style = "width: 0%";
     document.querySelector(".submit").disabled = false;
     let prev_buttons = document.querySelectorAll(".image-tabs");
@@ -74,7 +75,10 @@ document.querySelector(".submit").onclick = () => {
     document.querySelector(".bar-container").style.display = "none";
     document.querySelector(".submit").disabled = true;
     eel.parse();
-    $("#ocr").load("ocr.html");
+}
+eel.expose(enable_convert)
+function enable_convert(){
+    document.querySelector(".submit-ocr").disabled = false;
 }
 function submit_ocr() {
     // console.log(document.querySelector(".submit-ocr"))

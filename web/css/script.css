@@ -58,7 +58,20 @@ img {
     padding-right: 2%;
 }
 .submit-ocr{
-    background-color: lightgreen;
+    height: 30px;
+    width: 90px;
+    background-color: white;
+    color: green;
+    font-weight:500;
+    border: 2px solid green;
+    border-radius: 5px;
+}
+.submit-ocr:hover:enabled{
+    background-color: green;
+    color: white;
+}
+.submit-ocr:disabled{
+    opacity: .25;
 }
 .left-bar.info-bar{
     border-left: 6px solid #2196F3;
@@ -141,7 +154,7 @@ img {
     display: block;
     float: right;
     background-color: rgb(238, 237, 237);
-    height: 150px;
+    height: 175px;
     padding: 10px;
 }
 

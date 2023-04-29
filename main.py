@@ -49,6 +49,7 @@ def windowfilepicker():
 def parse():
     correspondence = parse_receipts();
     eel.display_parsed_images(correspondence);
+    eel.enable_convert();
 
 @eel.expose
 def ocr():

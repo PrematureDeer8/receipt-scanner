@@ -21,15 +21,14 @@ def amazon_ocr(desktop=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     expenses_folder = desktop / "expenses";
     if(expenses_folder.exists()):
         excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
-    else:
-        expenses_folder.mkdir();
-    #if the file is open get then excel has another file create ~$filename.xlsx
-    #dont get that file
-    if(excel_files):
+        #if the file is open get then excel has another file create ~$filename.xlsx
+        #dont get that file
         for file in excel_files:
             if(str(file)[:2] == "~$"):
                 eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
-                return;
+                excel_files.remove(file);
+    else:
+        expenses_folder.mkdir();
     expense = { 
             "Filename": [],
             "DateTime": [],
