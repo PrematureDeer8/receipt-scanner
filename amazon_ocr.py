@@ -19,6 +19,7 @@ def amazon_ocr(desktop=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
                             aws_secret_access_key=config.SECRET_KEY,
                             region_name=config.REGION)
     expenses_folder = desktop / "expenses";
+    excel_files = [];
     if(expenses_folder.exists()):
         excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
         #if the file is open get then excel has another file create ~$filename.xlsx
@@ -26,7 +27,7 @@ def amazon_ocr(desktop=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
         for file in excel_files:
             if(str(file)[:2] == "~$"):
                 eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
-                excel_files.remove(file);
+                return;
     else:
         expenses_folder.mkdir();
     expense = { 
