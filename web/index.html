@@ -16,6 +16,16 @@
             <button class="pick-file">Browse</button>
             <p>Convert to Excel</p>
             <button class="submit-ocr" onclick="submit_ocr()" disabled>Convert</button>
+            <p>Preferences</p>
+            <button class="pref" onclick="document.getElementById('prefModal').style.display = 'block'; file_path()">Configure</button>
+    </div>
+    <div id="prefModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('prefModal').style.display = 'none'">&times;</span>
+            <h2>Preferences</h2>
+            <label>Excel File path:</label>
+            <input type="text" class="input">
+        </div>
     </div>
     <div class="margin" style="margin:1.5%">
         <div class="bar-container left-bar slide-right" style="display: none;">

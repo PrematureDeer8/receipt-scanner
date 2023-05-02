@@ -133,3 +133,19 @@ document.querySelector(".import-export").onclick = () => {
         bool = true;
     }
 }
+function preferences(){
+    let display = document.getElementById("prefModal").style.display;
+    if(display == "" || display == "none"){
+        document.getElementById("prefModal").style.display = "block";
+    }
+}
+async function file_path(){
+    let value = await eel.default_file_path()();
+    document.querySelector(".input").value = value;
+}
+
+// window.onclick = function(event){
+//     if(event.target == document.getElementById("prefModal")){
+//         document.getElementById("prefModal").style.display = "none";
+//     }
+// }

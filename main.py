@@ -6,6 +6,7 @@ import re;
 import os
 from parse_receipts import parse_receipts
 from amazon_ocr import amazon_ocr
+import pathlib
 
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
 file_types = [".jpg",".png",".pdf"]
@@ -54,7 +55,11 @@ def parse():
 @eel.expose
 def ocr():
     # os.remove("expenses.xlsx")
+
     amazon_ocr();
-    eel.reable_excel_button();    
+    eel.reable_excel_button(); 
+@eel.expose
+def default_file_path():
+    return str(list(pathlib.Path.home().glob("*/Desktop"))[0])
 
 eel.start("index.html");
