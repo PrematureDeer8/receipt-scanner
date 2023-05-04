@@ -140,12 +140,13 @@ function preferences(){
     }
 }
 async function file_path(){
-    let value = await eel.default_file_path()();
-    document.querySelector(".input").value = value;
+    if(document.querySelector(".input").value == ""){
+        let value = await eel.default_file_path()();
+        document.querySelector(".input").value = value;
+    }
 }
-
-// window.onclick = function(event){
-//     if(event.target == document.getElementById("prefModal")){
-//         document.getElementById("prefModal").style.display = "none";
-//     }
-// }
+eel.expose(get_path);
+function get_path(){
+    console.log(document.querySelector(".input").value)
+    return document.querySelector(".input").value;
+}

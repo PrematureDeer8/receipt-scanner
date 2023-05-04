@@ -10,6 +10,7 @@ import pathlib
 
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
 file_types = [".jpg",".png",".pdf"]
+DEFAULT_PATH = list(pathlib.Path.home().glob("*/Desktop"))[0]
 
 eel.init("web");
 
@@ -54,12 +55,17 @@ def parse():
 
 @eel.expose
 def ocr():
-    # os.remove("expenses.xlsx")
-
-    amazon_ocr();
+    p = eel.get_path()();
+    exists = pathlib.Path(p).exists()
+    if(exists):
+        amazon_ocr(path=pathlib.Path(p));
+    else:
+        if(not exists):
+            eel.error_message(f"Path {p} does not exists! Preceeding with default path.")
+        amazon_ocr();
     eel.reable_excel_button(); 
 @eel.expose
 def default_file_path():
-    return str(list(pathlib.Path.home().glob("*/Desktop"))[0])
+    return str(DEFAULT_PATH)
 
 eel.start("index.html");

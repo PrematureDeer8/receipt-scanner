@@ -13,12 +13,12 @@ card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
 
-def amazon_ocr(desktop=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
+def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     client = boto3.client("rekognition",
                             aws_access_key_id=config.ACCESS_KEY,
                             aws_secret_access_key=config.SECRET_KEY,
                             region_name=config.REGION)
-    expenses_folder = desktop / "expenses";
+    expenses_folder = path / "expenses";
     excel_files = [];
     if(expenses_folder.exists()):
         excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
