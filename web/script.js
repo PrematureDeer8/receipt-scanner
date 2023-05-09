@@ -98,11 +98,18 @@ function error_message(message){
     parent.style.display = "block"
 }
 eel.expose(warning);
-function warning(message){
-    console.log("Warning received: "+ message)
-    let p = document.getElementById("message");
-    p.innerText = message;
-    let parent = p.parentElement;
+function warning(message,key){
+    let ul = document.getElementById("message")
+    msg = "Are " + key +"s!";
+    for (let str of message[key]){
+        list = document.createElement("li")
+        list.innerText = str;
+        ul.append(list);
+    }
+    let p = document.createElement("p");
+    p.innerText = msg;
+    ul.append(p);
+    let parent = ul.parentElement;
     parent.className += " warning-bar";
     parent.style.display = "block";
 }

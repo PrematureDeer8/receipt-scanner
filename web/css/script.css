@@ -185,10 +185,12 @@ img {
         /* overflow: hidden; */
         width: 0%;
         opacity: 10%;
+        background-color: magenta;
     }
     to {
         opacity: 100%;
-        width: 15%
+        width: 15%;
+        background-color: turquoise;
     }
 }
 
