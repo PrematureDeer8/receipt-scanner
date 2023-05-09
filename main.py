@@ -9,7 +9,7 @@ from amazon_ocr import amazon_ocr
 import pathlib
 
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
-file_types = [".jpg",".png",".pdf"]
+file_types = [".jpg",".png"]
 DEFAULT_PATH = list(pathlib.Path.home().glob("*/Desktop"))[0]
 
 eel.init("web");

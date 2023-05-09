@@ -97,6 +97,15 @@ function error_message(message){
     parent.className += " danger-bar"
     parent.style.display = "block"
 }
+eel.expose(warning);
+function warning(message){
+    console.log("Warning received: "+ message)
+    let p = document.getElementById("message");
+    p.innerText = message;
+    let parent = p.parentElement;
+    parent.className += " warning-bar";
+    parent.style.display = "block";
+}
 eel.expose(progress_bar)
 function progress_bar(done){
     document.querySelector(".progress-bar").style = "display: block;";
@@ -147,6 +156,6 @@ async function file_path(){
 }
 eel.expose(get_path);
 function get_path(){
-    console.log(document.querySelector(".input").value)
+    // console.log(document.querySelector(".input").value)
     return document.querySelector(".input").value;
 }

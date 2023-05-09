@@ -36,7 +36,7 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
             "Type":[],
             "Card":[],
             "Total":[]
-        }
+    }
     if excel_files:
         df = pd.concat(pd.read_excel(str(excel_files[0]), index_col=0, parse_dates=["DateTime"],
                             date_format="%m/%d/%y %I:%M %p",sheet_name=None),ignore_index=True);
@@ -165,6 +165,13 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     # print(expense);
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
+        if(not df.empty):
+            print(df);
+            for index in database.index:
+                check = pd.DataFrame(dict(database.loc[index]), columns=["Filename", "DateTime", "Type", "Card", "Total"],index=[0])
+                print(check);
+                if(df.isin(check)):
+                    eel.warning(f" {check['Filename'][0]} is a duplicate! Would you like to proceed anyways?");
         combined_df = pd.concat([df, database], ignore_index=True)
         combined_df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
         # none_ df = filter(lambda element: element == None, )
