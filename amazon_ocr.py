@@ -12,12 +12,19 @@ time_patterns = ["[0-9][0-9]\:[0-9][0-9]\:[0-9][0-9]\s*\D\D","[0-9][0-9]\:[0-5][
 card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s*[X]{4}\s*[X]{4}\s*\d{4}"]
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
+pd.DataFrame({})
+
 
 def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
-    client = boto3.client("rekognition",
-                            aws_access_key_id=config.ACCESS_KEY,
-                            aws_secret_access_key=config.SECRET_KEY,
-                            region_name=config.REGION)
+    try:
+        client = boto3.client("rekognition",
+                                aws_access_key_id=config.ACCESS_KEY,
+                                aws_secret_access_key=config.SECRET_KEY,
+                                region_name=config.REGION)
+    except:
+        eel.error_message("Please connect to internet!");
+        return;
+    
     expenses_folder = path / "expenses";
     excel_files = [];
     if(expenses_folder.exists()):
@@ -38,17 +45,15 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
             "Total":[]
     }
     if excel_files:
-        df = pd.concat(pd.read_excel(str(excel_files[0]), index_col=0, parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M %p",sheet_name=None),ignore_index=True);
+        df = pd.concat(pd.read_excel(excel_files[0], index_col=0, parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),ignore_index=True);
         for excel_file in excel_files[1:]:
-            df = pd.concat([df,pd.concat(pd.read_excel(str(excel_file), index_col=0, 
-                            parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M %p",sheet_name=None),
+            df = pd.concat([df,pd.concat(pd.read_excel(excel_file, index_col=0, 
+                            parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),
                             ignore_index=True)],
                            ignore_index=True); 
     else:
         df = pd.DataFrame()
-
-
-    # counter = len(df)
+    # print(df);
     receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts'
 
     # digits = re.compile(r'receipt(\d+).jpg')
@@ -167,17 +172,19 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
         warning_messages = {"Duplicate":[]}
         if(not df.empty):
             for index in database.index:
-                check = pd.DataFrame(dict(database.loc[index]), columns=["Filename", "DateTime", "Type", "Card", "Total"],index=[0])
-                isin = df.isin(check);
-                if(not df[isin].empty):
-                    warning_messages["Duplicate"].append(str(check["Filename"][0]))
-                    database.drop(index);
-        
+                check = df.loc[[index]]
+                isin = df.isin(check).drop(columns=["Filename"]);
+                #check for duplicates
+                if(True in list(isin.all(axis=1))):
+                    warning_messages["Duplicate"].append(str(database["Filename"][index]))
+                    database = database.drop(index=index);
         if(len(warning_messages["Duplicate"]) > 0):
             eel.warning(warning_messages,"Duplicate")
-        combined_df = pd.concat([df, database], ignore_index=True)
+        if(database.empty):
+            combined_df = df;
+        else:
+            combined_df = pd.concat([df, database], ignore_index=True)  
         combined_df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
-        # none_ df = filter(lambda element: element == None, )
         for index, (y, year_df) in enumerate(combined_df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
             excel_name = (y.strftime('%Y')+"expenses.xlsx")
             # DEBUG: datetime_format and date_format parameters do not work when using openpyxl as the engin
@@ -199,7 +206,7 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
                 warnings.simplefilter(action='ignore')
                 # for index, (_, group_df) in enumerate(combined_df.groupby(pd.Grouper(key='DateTime', freq='M'))):
                 for (_, group_df) in year_df.groupby(pd.Grouper(key='DateTime', freq='M')):
-                    datetime_str = group_df['DateTime'].dt.strftime('%m/%d/%y %I:%M %p')
+                    datetime_str = group_df['DateTime'].dt.strftime('%m/%d/%y %I:%M:%S %p')
                     group_df['DateTime'] = datetime_str
                     group_df.to_excel(writer, sheet_name=_.strftime("%B"))
     

@@ -100,15 +100,17 @@ function error_message(message){
 eel.expose(warning);
 function warning(message,key){
     let ul = document.getElementById("message")
-    msg = "Are " + key +"s!";
+    msg = key +"s:";
+    let p = document.createElement("li");
+    p.className = "no-bullet"
+    p.innerText = msg;
+    ul.append(p);
     for (let str of message[key]){
         list = document.createElement("li")
         list.innerText = str;
         ul.append(list);
     }
-    let p = document.createElement("p");
-    p.innerText = msg;
-    ul.append(p);
+    
     let parent = ul.parentElement;
     parent.className += " warning-bar";
     parent.style.display = "block";
