@@ -167,12 +167,14 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
         warning_messages = {"Duplicate":[]}
+        print(database);
         for index in database.index:
-            try:
-                df = pd.concat([df, database.loc[[index]]], ignore_index=True,verify_integrity=True)
-            except ValueError:
-                warning_messages["Duplicate"].append(str(database["Filename"][index]))
-        print(df)
+            df = pd.concat([df, database.loc[[index]]], ignore_index=True)
+            drop_col = df.drop(columns=["Filename"])
+            # print(df)
+            if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
+                warning_messages["Duplicate"].append(str(database["Filename"][index]));
+                df.drop(df.tail(1).index, inplace=True);
         if(len(warning_messages["Duplicate"]) > 0):
             eel.warning(warning_messages,"Duplicate")
         df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
