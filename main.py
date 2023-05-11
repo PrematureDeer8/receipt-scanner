@@ -56,9 +56,10 @@ def parse():
 @eel.expose
 def ocr():
     p = eel.get_path()();
-    exists = pathlib.Path(p).exists()
-    if(exists):
-        amazon_ocr(path=pathlib.Path(p));
+    path = pathlib.Path(p)
+    exists = path.exists()
+    if(exists and str(p) != ""):
+        amazon_ocr(path=path);
     else:
         if(not exists):
             eel.error_message(f"Path {p} does not exists! Preceeding with default path.")

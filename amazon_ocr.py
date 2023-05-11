@@ -12,8 +12,6 @@ time_patterns = ["[0-9][0-9]\:[0-9][0-9]\:[0-9][0-9]\s*\D\D","[0-9][0-9]\:[0-5][
 card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s*[X]{4}\s*[X]{4}\s*\d{4}"]
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
-pd.DataFrame({})
-
 
 def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     try:
@@ -47,7 +45,7 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     if excel_files:
         df = pd.concat(pd.read_excel(excel_files[0], index_col=0, parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),ignore_index=True);
         for excel_file in excel_files[1:]:
-            df = pd.concat([df,pd.concat(pd.read_excel(excel_file, index_col=0, 
+            df = pd.concat([df,pd.concat(pd.read_excel(path / excel_file, index_col=0, 
                             parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),
                             ignore_index=True)],
                            ignore_index=True); 
@@ -166,26 +164,19 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
         if(message != str(receipt)):
             eel.error_message(message);
 
-    # print(expense);
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
         warning_messages = {"Duplicate":[]}
-        if(not df.empty):
-            for index in database.index:
-                check = df.loc[[index]]
-                isin = df.isin(check).drop(columns=["Filename"]);
-                #check for duplicates
-                if(True in list(isin.all(axis=1))):
-                    warning_messages["Duplicate"].append(str(database["Filename"][index]))
-                    database = database.drop(index=index);
+        for index in database.index:
+            try:
+                df = pd.concat([df, database.loc[[index]]], ignore_index=True,verify_integrity=True)
+            except ValueError:
+                warning_messages["Duplicate"].append(str(database["Filename"][index]))
+        print(df)
         if(len(warning_messages["Duplicate"]) > 0):
             eel.warning(warning_messages,"Duplicate")
-        if(database.empty):
-            combined_df = df;
-        else:
-            combined_df = pd.concat([df, database], ignore_index=True)  
-        combined_df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
-        for index, (y, year_df) in enumerate(combined_df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
+        df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
+        for index, (y, year_df) in enumerate(df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
             excel_name = (y.strftime('%Y')+"expenses.xlsx")
             # DEBUG: datetime_format and date_format parameters do not work when using openpyxl as the engin
             # See here for reference: https://github.com/pandas-dev/pandas/issues/44284
