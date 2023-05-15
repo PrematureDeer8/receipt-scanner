@@ -25,6 +25,8 @@ function display_images(file_names){
         let grouper = document.createElement("div");
         grouper.id = name;
         grouper.className = "grouper";
+        let polaroid = document.createElement("div");
+        polaroid.className = "polaroid";
         let image = document.createElement("img");
         if(file_names.indexOf(name) != 0){
             grouper.style.display = "none";
@@ -47,7 +49,14 @@ function display_images(file_names){
             image_button.className += " active";
 
         });
-        grouper.append(image);
+        let container = document.createElement("div");
+        container.className = "container";
+        let p = document.createElement("p");
+        p.innerText = "Original Image";
+        container.append(p);
+        polaroid.append(image);
+        polaroid.append(container);
+        grouper.append(polaroid);
         image_display.append(image_button)
         image_content.append(grouper);
         
@@ -59,10 +68,19 @@ function display_parsed_images(correspondence){
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
+            let polaroid = document.createElement("div");
+            polaroid.className = "polaroid";
+            let container = document.createElement("div");
+            container.className = "container";
+            let p = document.createElement("p");
+            p.innerText = parsed_image;
             let image = document.createElement("img");
             image.src = "images/parsed_receipts/"+parsed_image+".jpg";
             image.className = "parsed";
-            divider.append(image);
+            container.append(p);
+            polaroid.append(image);
+            polaroid.append(container);
+            divider.append(polaroid);
         } 
     }
 }
@@ -105,12 +123,26 @@ function warning(message){
             ul.removeChild(ul.firstChild);
         }
     }
+    var counter = 0;
+    let list = document.createElement("li");
+    list.style.margin = 0; 
     for (let str of message){
-        let list = document.createElement("li")
-        list.innerText = str;
-        ul.append(list);
+        if(counter == 0){
+            let p = document.createElement("p");
+            p.style.margin = 0;
+            p.innerText = str;
+            ul.append(p);
+        }else{
+            if(counter == (message.length-1)){
+                list.innerText +=  str
+            }else{
+               list.innerText += str+ ", " 
+            }
+            
+        } 
+        counter += 1;
     }
-    
+    ul.append(list);
     let parent = ul.parentElement;
     parent.className += " warning-bar";
     parent.style.display = "block";

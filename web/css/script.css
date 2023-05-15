@@ -27,12 +27,13 @@ body{
 
 .tab-content{
     display: none;
-    padding: 6px 12px;
+    width: 100%;
+    /* padding: 6px 12px;
     border: 3px solid #36454f;
     border-width: thin medium medium;
     border-bottom-left-radius: 2%;
     border-bottom-right-radius: 2%;
-    background-color: #fffffa;
+    background-color: #fffffa; */
 }
 
 img {
@@ -53,9 +54,7 @@ img {
     border-radius: 5px;    
 
 }
-.image-content{
-    padding-right: 10%;
-}
+
 .parsed{
     padding-right: 2%;
 }
@@ -237,4 +236,20 @@ img {
     height:25px;
     width:55%;
     /* border-radius: 15px; */
+}
+li{
+    margin: 0;
+    padding: 0;
+}
+div.polaroid{
+    margin-right: 30px;
+    display: inline-block;
+    max-width: 500px;
+    width: fit-content;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+div.container {
+    text-align: center;
+    padding: 10px 20px;
 }

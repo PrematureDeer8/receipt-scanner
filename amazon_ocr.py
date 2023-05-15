@@ -172,7 +172,8 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                 df = pd.concat([df, database.loc[[index]]], ignore_index=True)
                 drop_col = df.drop(columns=["Filename"])
                 if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
-                    warning_messages.append(str(database["Filename"][index]));
+                    string = str(database["Filename"][index])
+                    warning_messages.append(re.findall("receipt\d+",string)[0]);
                     df.drop(df.tail(1).index, inplace=True);
             if(len(warning_messages) > 1):
                 eel.warning(warning_messages)
