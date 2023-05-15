@@ -212,6 +212,15 @@ img {
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    height: 200px;
+}
+.modal-content label{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.modal-content input{
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .close{
     color: #aaa;

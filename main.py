@@ -56,14 +56,15 @@ def parse():
 @eel.expose
 def ocr():
     p = eel.get_path()();
+    checked = eel.count_duplicates()();
     path = pathlib.Path(p)
     exists = path.exists()
     if(exists and str(p) != ""):
-        amazon_ocr(path=path);
+        amazon_ocr(path=path,check=checked);
     else:
         if(not exists):
             eel.error_message(f"Path {p} does not exists! Preceeding with default path.")
-        amazon_ocr();
+        amazon_ocr(check=checked);
     eel.reable_excel_button(); 
 @eel.expose
 def default_file_path():

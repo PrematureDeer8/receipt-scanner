@@ -13,7 +13,7 @@ card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
 
-def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
+def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
     try:
         client = boto3.client("rekognition",
                                 aws_access_key_id=config.ACCESS_KEY,
@@ -71,7 +71,6 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
             text = detection["DetectedText"]
             if(textType.lower() == "line"):
                 string += text + "\n";
-        # print(string);
         dates = [];
         switch = False;
         for pattern in date_patterns:
@@ -160,23 +159,23 @@ def amazon_ocr(path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
         else:
             expense["Type"].append(None);
             message += "\n Type not found in receipt"
-        # print(message);
         if(message != str(receipt)):
             eel.error_message(message);
 
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
-        warning_messages = {"Duplicate":[]}
-        print(database);
-        for index in database.index:
-            df = pd.concat([df, database.loc[[index]]], ignore_index=True)
-            drop_col = df.drop(columns=["Filename"])
-            # print(df)
-            if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
-                warning_messages["Duplicate"].append(str(database["Filename"][index]));
-                df.drop(df.tail(1).index, inplace=True);
-        if(len(warning_messages["Duplicate"]) > 0):
-            eel.warning(warning_messages,"Duplicate")
+        warning_messages = ["Duplicate"]
+        if(check):
+            df = pd.concat([df, database], ignore_index=True);
+        else:
+            for index in database.index:
+                df = pd.concat([df, database.loc[[index]]], ignore_index=True)
+                drop_col = df.drop(columns=["Filename"])
+                if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
+                    warning_messages.append(str(database["Filename"][index]));
+                    df.drop(df.tail(1).index, inplace=True);
+            if(len(warning_messages) > 1):
+                eel.warning(warning_messages)
         df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
         for index, (y, year_df) in enumerate(df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
             excel_name = (y.strftime('%Y')+"expenses.xlsx")

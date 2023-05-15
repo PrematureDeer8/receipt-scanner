@@ -98,15 +98,15 @@ function error_message(message){
     parent.style.display = "block"
 }
 eel.expose(warning);
-function warning(message,key){
+function warning(message){
     let ul = document.getElementById("message")
-    msg = key +"s:";
-    let p = document.createElement("li");
-    p.className = "no-bullet"
-    p.innerText = msg;
-    ul.append(p);
-    for (let str of message[key]){
-        list = document.createElement("li")
+    if(ul.firstChild != null){
+        while(ul.firstChild){
+            ul.removeChild(ul.firstChild);
+        }
+    }
+    for (let str of message){
+        let list = document.createElement("li")
         list.innerText = str;
         ul.append(list);
     }
@@ -167,4 +167,8 @@ eel.expose(get_path);
 function get_path(){
     // console.log(document.querySelector(".input").value)
     return document.querySelector(".input").value;
+}
+eel.expose(count_duplicates)
+function count_duplicates(){
+    return document.querySelector(".duplicate").checked
 }
