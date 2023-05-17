@@ -114,7 +114,10 @@ function error_message(errors){
     parent.classList.remove('danger-bar');
     parent.classList.remove('warning-bar');
     let cls;
-    if(errors["NO AWS"]){
+    if(errors["Exists"]){
+        p.innerText = errors["message"];
+        cls = " danger-bar";
+    }else if(errors["NO AWS"]){
         p.innerText = "Check internet connection to convert to excel!";
         cls = " danger-bar";
     }else if(errors["Duplicate"].length > 0){

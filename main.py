@@ -9,13 +9,18 @@ from amazon_ocr import amazon_ocr
 import pathlib
 
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
-file_types = [".jpg",".png"]
+file_types = [".jpg",".png",".pdf"]
 DEFAULT_PATH = list(pathlib.Path.home().glob("*/Desktop"))[0]
 
 eel.init("web");
 
 @eel.expose
 def windowfilepicker():
+    error = {
+        "Exists": False,
+        "message": "",
+        "delete": []
+    }
     directory="web/images/parsed_receipts/";
     tkinter.Tk().withdraw(); # prevents an empty tkinter window from appearing
     file_paths = list(filedialog.askopenfilenames());
@@ -28,12 +33,14 @@ def windowfilepicker():
                 counter += 1;
         #path is not a valid image type
         if(counter == len(file_types)):
-            file_paths.remove(path);
-            message = str(path) + " is not a correct image file!";
-            if(len(file_paths)):
-                message += "\nPreceeding with other files.";
-            eel.error_message(message);
+            error["delete"].append(path);
+            error["Exists"] = True;
+            error["message"] += str(re.findall("[\w\s-]+[.]\w+",str(path))[0]) +", ";
+    error["message"] += " is not an image!";
+    for delete in error["delete"]:
+        file_paths.remove(delete);
     if(file_paths):
+        error["message"] += "\n Proceding with other files.";
         for file in os.listdir(directory):
             os.remove(directory+file)
         for file in os.listdir("web/images/scanned_receipts"):
@@ -45,6 +52,7 @@ def windowfilepicker():
             file_names.append(pattern.findall(path)[0])
             cv.imwrite("web/images/scanned_receipts/{}".format(file_names[index]),image_mat);
         eel.display_images(file_names);
+    eel.error_message(error);
     eel.reable_browse();
 
 @eel.expose
@@ -55,6 +63,9 @@ def parse():
 
 @eel.expose
 def ocr():
+    error = {
+        "Exists": False
+    }
     p = eel.get_path()();
     checked = eel.count_duplicates()();
     path = pathlib.Path(p)
@@ -63,7 +74,9 @@ def ocr():
         amazon_ocr(path=path,check=checked);
     else:
         if(not exists):
-            eel.error_message(f"Path {p} does not exists! Preceeding with default path.")
+            error["Exists"] = True;
+            error["message"] = f"Path {p} does not exists! Proceding with default path."
+            eel.error_message(error)
         amazon_ocr(check=checked);
     eel.reable_excel_button(); 
 @eel.expose

@@ -8,7 +8,7 @@ import warnings
 import eel
 
 date_patterns = ["[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{4}","[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{2}"]
-time_patterns = ["[0-9][0-9]\:[0-9][0-9]\:[0-9][0-9]\s*\D\D","[0-9][0-9]\:[0-5][0-9]\s*\D\D","[0-9]\:[0-5][0-9]\s*\D\D"]
+time_patterns = ["\d+\:\d+\:*\d*\s*\D{2}","\d+\:\d+\:*\d*"];
 card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s*[X]{4}\s*[X]{4}\s*\d{4}"]
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
@@ -105,8 +105,6 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                                     time = time[:i+1] 
                                     break;
                         times.append(time);
-
-
                         switch= True;
             if(switch):
                 break;
@@ -128,7 +126,6 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                 total_pos_totals.append(total);
         numbers = [];
         for total in total_pos_totals:
-            # print(total)
             str_number = '';
             for char in total:
                 if(char.isdigit()):
