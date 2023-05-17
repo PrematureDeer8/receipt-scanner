@@ -120,7 +120,7 @@ function error_message(errors){
     }else if(errors["NO AWS"]){
         p.innerText = "Check internet connection to convert to excel!";
         cls = " danger-bar";
-    }else if(errors["Duplicate"].length > 0){
+    }else if(errors["Duplicate"] != undefined && errors["Duplicate"].length > 0){
         let text = "Duplicates:\n";
         let counter = 0;
         for(let receipt of errors["Duplicate"]){
