@@ -108,44 +108,46 @@ function reable_excel_button(){
     document.querySelector(".submit-ocr").disabled = false;
 }
 eel.expose(error_message)
-function error_message(message){
+function error_message(errors){ 
     let p = document.getElementById("message");
-    p.innerText = message;
     let parent = p.parentElement;
-    parent.className += " danger-bar"
-    parent.style.display = "block"
-}
-eel.expose(warning);
-function warning(message){
-    let ul = document.getElementById("message")
-    if(ul.firstChild != null){
-        while(ul.firstChild){
-            ul.removeChild(ul.firstChild);
-        }
-    }
-    var counter = 0;
-    let list = document.createElement("li");
-    list.style.margin = 0; 
-    for (let str of message){
-        if(counter == 0){
-            let p = document.createElement("p");
-            p.style.margin = 0;
-            p.innerText = str;
-            ul.append(p);
-        }else{
-            if(counter == (message.length-1)){
-                list.innerText +=  str
+    parent.classList.remove('danger-bar');
+    parent.classList.remove('warning-bar');
+    let cls;
+    if(errors["NO AWS"]){
+        p.innerText = "Check internet connection to convert to excel!";
+        cls = " danger-bar";
+    }else if(errors["Duplicate"].length > 0){
+        let text = "Duplicates:\n";
+        let counter = 0;
+        for(let receipt of errors["Duplicate"]){
+            if(counter != (errors["Duplicate"].length-1)){
+                text += receipt +", ";
             }else{
-               list.innerText += str+ ", " 
+                text += receipt;
             }
-            
-        } 
-        counter += 1;
+            counter += 1;
+        }
+        p.innerText = text;
+        cls = " warning-bar";
+    }else{
+        let counter = 0;
+        let text;
+        for(let key in errors){
+            text = String(key) + ": ";
+            if(counter > 1){
+                for(let error of errors[key]){
+                    text += error + " "
+                }
+            }
+            counter += 1;
+        }
+        p.innerText = text;
+        cls = " danger-bar"
     }
-    ul.append(list);
-    let parent = ul.parentElement;
-    parent.className += " warning-bar";
-    parent.style.display = "block";
+    
+    parent.className += cls
+    parent.style.display = "block"
 }
 eel.expose(progress_bar)
 function progress_bar(done){

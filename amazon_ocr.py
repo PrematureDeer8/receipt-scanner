@@ -12,19 +12,23 @@ time_patterns = ["[0-9][0-9]\:[0-9][0-9]\:[0-9][0-9]\s*\D\D","[0-9][0-9]\:[0-5][
 card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s*[X]{4}\s*[X]{4}\s*\d{4}"]
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
-
 def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
+    error_messages = {
+        "Duplicate":[],
+        "NO AWS": False};
     try:
         client = boto3.client("rekognition",
                                 aws_access_key_id=config.ACCESS_KEY,
                                 aws_secret_access_key=config.SECRET_KEY,
                                 region_name=config.REGION)
     except:
-        eel.error_message("Please connect to internet!");
+        error_messages["NO AWS"] = True;
+        eel.error_message(error_messages);
         return;
     
     expenses_folder = path / "expenses";
     excel_files = [];
+    has_errors = False;
     if(expenses_folder.exists()):
         excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
         #if the file is open get then excel has another file create ~$filename.xlsx
@@ -61,9 +65,15 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
     #     receipts.iterdir()
     # ):
     for receipt in receipts.iterdir():
+        receipt_name = re.findall("receipt\d+",str(receipt))[0]
+        error_messages[receipt_name] = [];
         image = receipt.read_bytes()
-        response = client.detect_text(Image={"Bytes":image})
-
+        try:
+            response = client.detect_text(Image={"Bytes":image});
+        except:
+            error_messages["NO AWS"] = True;
+            eel.error_message(error_messages);
+            return;
         detections = response["TextDetections"]
         string = ''
         for detection in detections:
@@ -125,22 +135,25 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                     str_number += char;
             numbers.append(int(str_number));
         expense["Filename"].append(receipt)
-        message = str(receipt)
         if(numbers):
             total = max(numbers)/100;
         else:
+            error_messages[receipt_name].append("Total was not found!")
+            has_errors= True;
             total = None;
         expense["Total"].append(total)
         if(len(cards) != 0):
             expense["Card"].append(int(cards[0]))
         else:
-            message += "\n Card not found in receipt"
+            error_messages[receipt_name].append("Card was not found!")
+            has_errors= True;
             expense["Card"].append(None)
         if(len(dates) > 0):
             expense["DateTime"].append(dateutil.parser.parse(dates[0]+" "+times[0]));
         else:
+            error_messages[receipt_name].append("Date was not found!");
+            has_errors= True;
             expense["DateTime"].append(None);
-            message += "\n Date not found in receipt"
         if(
             re.search("FUEL", string.upper()) != None 
             or re.search("PUMP#\s*\d+", string.upper()) != None
@@ -157,14 +170,17 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
         elif(re.search("GROCERY",string.upper())!= None):
             expense["Type"].append("GROCERIES");
         else:
+            error_messages[receipt_name].append("Type not found!");
+            has_errors= True;
             expense["Type"].append(None);
-            message += "\n Type not found in receipt"
-        if(message != str(receipt)):
-            eel.error_message(message);
+
+    for key in error_messages:
+        if(error_messages[key]):
+            eel.error_message(error_messages);
+            break;
 
     if(len(expense["DateTime"]) > 0):
         database = pd.DataFrame(expense);
-        warning_messages = ["Duplicate"]
         if(check):
             df = pd.concat([df, database], ignore_index=True);
         else:
@@ -173,10 +189,10 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                 drop_col = df.drop(columns=["Filename"])
                 if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
                     string = str(database["Filename"][index])
-                    warning_messages.append(re.findall("receipt\d+",string)[0]);
+                    error_messages["Duplicate"].append(re.findall("receipt\d+",string)[0]);
                     df.drop(df.tail(1).index, inplace=True);
-            if(len(warning_messages) > 1):
-                eel.warning(warning_messages)
+            if(error_messages["Duplicate"] and not (has_errors)):
+                eel.error_message(error_messages);
         df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
         for index, (y, year_df) in enumerate(df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
             excel_name = (y.strftime('%Y')+"expenses.xlsx")
