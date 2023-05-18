@@ -144,6 +144,9 @@ img {
     }
 }
 .navigation {
+    position: fixed;
+    top: 0;
+    width: 100%;
     background-color: rgb(238, 237, 237);
     overflow: hidden;
 }
@@ -154,15 +157,19 @@ img {
 .navigation a:hover{
     background-color: rgb(193, 193, 193);
 }
+.sticky{
+}
 .dialogbox{
-    position: relative;
     z-index: 3;
     width: 15%;
     display: block;
-    float: right;
+    /* float: right; */
+    right: 0;
+    top: 35px;
     background-color: rgb(238, 237, 237);
     height: 225px;
     padding: 10px;
+    position: fixed;
 }
 
 .slide-right-small{
@@ -252,4 +259,10 @@ div.polaroid{
 div.container {
     text-align: center;
     padding: 10px 20px;
+}
+div.container.warning-bar{
+    border-bottom: 4px solid yellow;
+}
+div.container.danger-bar{
+    border-bottom: 4px solid red;
 }

@@ -1,3 +1,18 @@
+window.onscroll = function(){sticky()};
+
+let navbar = document.querySelector(".navigation");
+let stick = navbar.offsetTop;
+
+function sticky(){
+    if(window.pageYOffset >= stick){
+        navbar.classList.add("sticky");
+    }else{
+        navbar.classList.remove("sticky")
+    }
+}
+
+
+
 eel.expose(display_images)
 function display_images(file_names){
     document.querySelector(".submit-ocr").disabled = true;
@@ -72,6 +87,7 @@ function display_parsed_images(correspondence){
             polaroid.className = "polaroid";
             let container = document.createElement("div");
             container.className = "container";
+            container.id = parsed_image;
             let p = document.createElement("p");
             p.innerText = parsed_image;
             let image = document.createElement("img");
@@ -124,6 +140,8 @@ function error_message(errors){
         let text = "Duplicates:\n";
         let counter = 0;
         for(let receipt of errors["Duplicate"]){
+            let container = document.getElementById(String(receipt));
+            container.className += " warning-bar";
             if(counter != (errors["Duplicate"].length-1)){
                 text += receipt +", ";
             }else{
@@ -138,6 +156,10 @@ function error_message(errors){
         let text;
         for(let key in errors){
             text = String(key) + ": ";
+            let container = document.getElementById(String(key));
+            if(container != undefined){
+                container.className = " danger-bar";        
+            }
             if(counter > 1){
                 for(let error of errors[key]){
                     text += error + " "
