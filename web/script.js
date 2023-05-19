@@ -152,17 +152,19 @@ function error_message(errors){
         p.innerText = text;
         cls = " warning-bar";
     }else{
+        console.log(errors);
         let counter = 0;
-        let text;
+        let text = "";
         for(let key in errors){
-            text = String(key) + ": ";
-            let container = document.getElementById(String(key));
-            if(container != undefined){
-                container.className = " danger-bar";        
-            }
             if(counter > 1){
-                for(let error of errors[key]){
-                    text += error + " "
+                let container = document.getElementById(String(key));
+                if(container != undefined && errors[key].length > 0){
+                    text+= String(key) + ": "
+                    container.className += " danger-bar";
+                    for(let error of errors[key]){
+                        text += error + " "
+                    }        
+                    text+= "\n";
                 }
             }
             counter += 1;
