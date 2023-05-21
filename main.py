@@ -22,7 +22,7 @@ preferences = {
 if(receipt_folder.exists()):
     pref_file = receipt_folder / "pref.json";
     with open(pref_file, "r") as f:
-        preferences = json.load(f)
+        preferences = json.load(f);
 def store_preferences(page, web_sockets):
     if(local.exists()):
         if(not receipt_folder.exists()):
