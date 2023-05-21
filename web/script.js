@@ -233,3 +233,7 @@ eel.expose(count_duplicates)
 function count_duplicates(){
     return document.querySelector(".duplicate").checked
 }
+document.querySelector(".close").onclick = () => {
+    document.getElementById('prefModal').style.display = 'none'
+    eel.updateperferences(document.querySelector(".input").value,document.querySelector(".duplicate").checked)
+}

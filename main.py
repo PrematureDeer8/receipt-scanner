@@ -1,18 +1,41 @@
 import eel
 import tkinter
 from tkinter import filedialog
-import cv2 as cv;
-import re;
+import cv2 as cv
+import re
 import os
 from parse_receipts import parse_receipts
 from amazon_ocr import amazon_ocr
 import pathlib
+import sys
+import json
 
+local = pathlib.Path.home() / "AppData" / "Local";
+receipt_folder = local / "receipt-scanner";
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf")
 file_types = [".jpg",".png",".pdf"]
 DEFAULT_PATH = list(pathlib.Path.home().glob("*/Desktop"))[0]
-
+preferences = {
+    "file_path": str(DEFAULT_PATH),
+    "count_duplicates": False
+}
+if(receipt_folder.exists()):
+    pref_file = receipt_folder / "pref.json";
+    with open(pref_file, "r") as f:
+        preferences = json.load(f)
+def store_preferences(page, web_sockets):
+    if(local.exists()):
+        if(not receipt_folder.exists()):
+            receipt_folder.mkdir();
+        pref_file = receipt_folder / "pref.json"
+        with open(pref_file, "w") as f:
+            json.dump(preferences, f,indent=4);
+    sys.exit()
 eel.init("web");
+@eel.expose
+def updateperferences(file_path, count_duplicates):
+    preferences["file_path"] = file_path;
+    preferences["count_duplicates"] = count_duplicates;
 
 @eel.expose
 def windowfilepicker():
@@ -67,21 +90,20 @@ def ocr():
     error = {
         "Exists": False
     }
-    p = eel.get_path()();
-    checked = eel.count_duplicates()();
-    path = pathlib.Path(p)
+    path = pathlib.Path(preferences["file_path"])
     exists = path.exists()
-    if(exists and str(p) != ""):
-        amazon_ocr(path=path,check=checked);
+    if(exists and str(preferences["file_path"]) != ""):
+        amazon_ocr(path=path,check=preferences["count_duplicates"]);
     else:
         if(not exists):
             error["Exists"] = True;
-            error["message"] = f"Path {p} does not exists! Proceding with default path."
+            error["message"] = f"Path {preferences['file_path']} does not exists! Proceding with default path."
             eel.error_message(error)
-        amazon_ocr(check=checked);
+        amazon_ocr(check=preferences["count_duplicates"]);
     eel.reable_excel_button(); 
 @eel.expose
 def default_file_path():
-    return str(DEFAULT_PATH)
+    return preferences["file_path"]
 
-eel.start("index.html");
+eel.start("index.html", close_callback=store_preferences);
+
