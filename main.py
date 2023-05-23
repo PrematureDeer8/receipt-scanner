@@ -103,7 +103,9 @@ def ocr():
     eel.reable_excel_button(); 
 @eel.expose
 def default_file_path():
-    return preferences["file_path"]
+    return preferences["file_path"];
+@eel.expose
+def default_count_dup():
+    return preferences["count_duplicates"];
 
 eel.start("index.html", close_callback=store_preferences);
-

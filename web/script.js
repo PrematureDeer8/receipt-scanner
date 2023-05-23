@@ -10,9 +10,6 @@ function sticky(){
         navbar.classList.remove("sticky")
     }
 }
-
-
-
 eel.expose(display_images)
 function display_images(file_names){
     document.querySelector(".submit-ocr").disabled = true;
@@ -88,6 +85,7 @@ function display_parsed_images(correspondence){
             let container = document.createElement("div");
             container.className = "container";
             container.id = parsed_image;
+            console.log(correspondence[og_img].indexOf(parsed_image))
             let p = document.createElement("p");
             p.innerText = parsed_image;
             let image = document.createElement("img");
@@ -223,6 +221,10 @@ async function file_path(){
         let value = await eel.default_file_path()();
         document.querySelector(".input").value = value;
     }
+}
+async function count_dup(){
+    let value = await eel.default_count_dup()();
+    document.querySelector(".duplicate").checked = value;
 }
 eel.expose(get_path);
 function get_path(){

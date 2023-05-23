@@ -249,7 +249,6 @@ li{
     padding: 0;
 }
 div.polaroid{
-    margin-right: 30px;
     display: inline-block;
     max-width: 500px;
     width: fit-content;
