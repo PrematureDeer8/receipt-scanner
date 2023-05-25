@@ -31,11 +31,18 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
     has_errors = False;
     if(expenses_folder.exists()):
         excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
-        #if the file is open get then excel has another file create ~$filename.xlsx
-        #dont get that file
+        #check to see if excel file is already opened
         for file in excel_files:
-            if(str(file)[:2] == "~$"):
-                eel.error_message(f"{file[2:]} is opened! Please close before proceeding.");
+            try:
+                with open(file, "r") as file:
+                    pass;
+            except IOError:
+                file_name = re.findall("\d+expenses[.]xlsx",str(file))[0];
+                error ={
+                    "Open Excel": True,
+                    "filename": file_name
+                }
+                eel.error_message(error);
                 return;
     else:
         expenses_folder.mkdir();

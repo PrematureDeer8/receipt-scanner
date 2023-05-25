@@ -134,6 +134,10 @@ function error_message(errors){
     }else if(errors["NO AWS"]){
         p.innerText = "Check internet connection to convert to excel!";
         cls = " danger-bar";
+    }else if(errors["Open Excel"]){
+        let file_name = errors["filename"];
+        p.innerText = file_name + " is opened! Please close before proceeding.";
+        cls = " danger-bar";
     }else if(errors["Duplicate"] != undefined && errors["Duplicate"].length > 0){
         let text = "Duplicates:\n";
         let counter = 0;
@@ -150,7 +154,6 @@ function error_message(errors){
         p.innerText = text;
         cls = " warning-bar";
     }else{
-        console.log(errors);
         let counter = 0;
         let text = "";
         for(let key in errors){
