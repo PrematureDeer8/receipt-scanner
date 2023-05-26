@@ -84,12 +84,9 @@ document.querySelector("#uploadfiles").onchange = () => {
 eel.expose(display_parsed_images)
 function display_parsed_images(correspondence){
     const og_imgs  = Object.keys(correspondence);
-    console.log(correspondence);
-    console.log(og_imgs);
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
-            console.log(parsed_image);
             let polaroid = document.createElement("div");
             polaroid.className = "polaroid";
             let container = document.createElement("div");

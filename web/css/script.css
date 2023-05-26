@@ -136,7 +136,7 @@ img {
 @keyframes slide-right{
     from {
         width: 10%;
-        opacity: 25%;
+        opacity: 0%;
     }
     to {
         opacity: 100%;
