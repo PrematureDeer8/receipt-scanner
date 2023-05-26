@@ -5,15 +5,13 @@ from deskew import determine_skew
 import os
 import eel
 
-
-def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed_receipts",counter=0):
+def parse_receipts(file_paths,parsedir="web/images/parsed_receipts",counter=0):
     correspondence = {};
     #get unread receipts
     images = [];
-    names = os.listdir(dir)
-    for name in names:
-        images.append(cv.imread("{}/{}".format(dir,name)));
-        correspondence[name] = [];
+    for path in file_paths:
+        images.append(cv.imread(path));
+        correspondence[path[path.rfind("/")+1:]] = [];
         #move unread receipts to read receipts
         # os.remove("{}/{}".format(dir,name));
     #len(images) > 0
@@ -103,7 +101,7 @@ def parse_receipts(dir="web/images/scanned_receipts",parsedir="web/images/parsed
                 rotated = cv.warpAffine(receipt,rot_mat,(receipt.shape[1],receipt.shape[0]))
                 ret, mask = cv.threshold(rotated,190,255,cv.THRESH_BINARY)
                 cv.imwrite("{}/receipt".format(parsedir)+str((counter))+".jpg",mask);
-                correspondence[names[i]].append("receipt"+str(counter));
+                correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append("receipt"+str(counter));
                 counter += 1;
             eel.progress_bar(i+1);
     return correspondence;

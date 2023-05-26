@@ -1,6 +1,5 @@
 import eel
-import tkinter
-from tkinter import filedialog
+import eel.browsers
 import cv2 as cv
 import re
 import os
@@ -31,6 +30,9 @@ def store_preferences(page, web_sockets):
         with open(pref_file, "w") as f:
             json.dump(preferences, f,indent=4);
     sys.exit()
+
+eel.browsers.set_path('electron', 'node_modules/electron/dist/electron');
+
 eel.init("web");
 @eel.expose
 def updateperferences(file_path, count_duplicates):
@@ -38,15 +40,14 @@ def updateperferences(file_path, count_duplicates):
     preferences["count_duplicates"] = count_duplicates;
 
 @eel.expose
-def windowfilepicker():
+def windowfilepicker(file_paths):
     error = {
         "Exists": False,
         "message": "",
         "delete": []
     }
     directory="web/images/parsed_receipts/";
-    tkinter.Tk().withdraw(); # prevents an empty tkinter window from appearing
-    file_paths = list(filedialog.askopenfilenames());
+    
     for path in file_paths:
         counter = 0;
         for type in file_types:
@@ -80,8 +81,8 @@ def windowfilepicker():
     eel.reable_browse();
 
 @eel.expose
-def parse():
-    correspondence = parse_receipts();
+def parse(file_paths):
+    correspondence = parse_receipts(file_paths);
     eel.display_parsed_images(correspondence);
     eel.enable_convert();
 
@@ -108,4 +109,4 @@ def default_file_path():
 def default_count_dup():
     return preferences["count_duplicates"];
 
-eel.start("index.html", close_callback=store_preferences);
+eel.start("index.html", mode="electron", close_callback=store_preferences, size=(800,600));

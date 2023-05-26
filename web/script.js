@@ -10,82 +10,91 @@ function sticky(){
         navbar.classList.remove("sticky")
     }
 }
-eel.expose(display_images)
-function display_images(file_names){
-    document.querySelector(".submit-ocr").disabled = true;
-    document.querySelector(".progress").style = "width: 0%";
-    document.querySelector(".submit").disabled = false;
-    let prev_buttons = document.querySelectorAll(".image-tabs");
-    let prev_images = document.getElementsByTagName("img");
-    let grouper = document.querySelectorAll(".grouper");
-    for(let button of prev_buttons){
-        button.remove();
+document.querySelector("#uploadfiles").onchange = () => {
+    for(let file of files){
+        
     }
-    for(let image of prev_images){
-        image.remove();
-    }
-    for(let group of grouper){
-        group.remove();
-    }
-    document.querySelector(".tab-content").style.display = "block";
-    let image_display = document.querySelector(".navigation")
-    let image_content = document.querySelector(".tab-content")
-    for(let name of file_names){
-        let image_button = document.createElement("a");
-        image_button.className = "image-tabs active";
-        image_button.innerText = "Img"+(file_names.indexOf(name)+1);
-        let grouper = document.createElement("div");
-        grouper.id = name;
-        grouper.className = "grouper";
-        let polaroid = document.createElement("div");
-        polaroid.className = "polaroid";
-        let image = document.createElement("img");
-        if(file_names.indexOf(name) != 0){
-            grouper.style.display = "none";
-            image_button.className = "image-tabs"
+}
+document.querySelector("#uploadfiles").onchange = () => {
+    let files = document.querySelector("#uploadfiles").files;
+     if(files.length != 0){
+        document.querySelector(".submit-ocr").disabled = true;
+        document.querySelector(".progress").style = "width: 0%";
+        document.querySelector(".submit").disabled = false;
+        let prev_buttons = document.querySelectorAll(".image-tabs");
+        let prev_images = document.getElementsByTagName("img");
+        let grouper = document.querySelectorAll(".grouper");
+        for(let button of prev_buttons){
+            button.remove();
         }
-        image.className = "image-content";
-        image.src = "images/scanned_receipts/"+name;
-        //*
-        image_button.addEventListener("click", function (){
-            let buttons = document.querySelectorAll(".image-tabs");
-            for(let button of buttons){
-                button.className = "image-tabs"
+        for(let image of prev_images){
+            image.remove();
+        }
+        for(let group of grouper){
+            group.remove();
+        }
+        document.querySelector(".tab-content").style.display = "block";
+        let image_display = document.querySelector(".navigation")
+        let image_content = document.querySelector(".tab-content")
+        for(var i =0; i < files.length; i++){
+            let name = files[i].name;
+            let image_button = document.createElement("a");
+            image_button.className = "image-tabs active";
+            image_button.innerText = "Img"+(i+1);
+            let grouper = document.createElement("div");
+            grouper.id = files[i].name;
+            grouper.className = "grouper";
+            let polaroid = document.createElement("div");
+            polaroid.className = "polaroid";
+            let image = document.createElement("img");
+            if(i != 0){
+                grouper.style.display = "none";
+                image_button.className = "image-tabs"
             }
-            let dividers;
-            dividers = document.querySelectorAll(".grouper");
-            for(let divider of dividers){
-                divider.style.display = "none";
-            }
-            document.getElementById(name).style.display = "block";
-            image_button.className += " active";
+            image.className = "image-content";
+            image.src = files[i].path;
+            image_button.addEventListener("click", function (){
+                let buttons = document.querySelectorAll(".image-tabs");
+                for(let button of buttons){
+                    button.className = "image-tabs"
+                }
+                let dividers;
+                dividers = document.querySelectorAll(".grouper");
+                for(let divider of dividers){
+                    divider.style.display = "none";
+                }
+                document.getElementById(name).style.display = "block";
+                image_button.className += " active";
 
-        });
-        let container = document.createElement("div");
-        container.className = "container";
-        let p = document.createElement("p");
-        p.innerText = "Original Image";
-        container.append(p);
-        polaroid.append(image);
-        polaroid.append(container);
-        grouper.append(polaroid);
-        image_display.append(image_button)
-        image_content.append(grouper);
+            });
+            let container = document.createElement("div");
+            container.className = "container";
+            let p = document.createElement("p");
+            p.innerText = "Original Image";
+            container.append(p);
+            polaroid.append(image);
+            polaroid.append(container);
+            grouper.append(polaroid);
+            image_display.append(image_button)
+            image_content.append(grouper);
+        }
         
     }
 }
 eel.expose(display_parsed_images)
 function display_parsed_images(correspondence){
     const og_imgs  = Object.keys(correspondence);
+    console.log(correspondence);
+    console.log(og_imgs);
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
+            console.log(parsed_image);
             let polaroid = document.createElement("div");
             polaroid.className = "polaroid";
             let container = document.createElement("div");
             container.className = "container";
             container.id = parsed_image;
-            console.log(correspondence[og_img].indexOf(parsed_image))
             let p = document.createElement("p");
             p.innerText = parsed_image;
             let image = document.createElement("img");
@@ -98,15 +107,15 @@ function display_parsed_images(correspondence){
         } 
     }
 }
-document.querySelector(".pick-file").onclick = () => {
-    document.querySelector(".bar-container").style.display = "none";
-    document.querySelector(".pick-file").disabled = true;
-    eel.windowfilepicker();
-};
 document.querySelector(".submit").onclick = () => {
     document.querySelector(".bar-container").style.display = "none";
     document.querySelector(".submit").disabled = true;
-    eel.parse();
+    let images = document.querySelectorAll(".image-content");
+    let paths = [];
+    for(let image of images){
+        paths.push(String(image.src).substring(8));
+    }
+    eel.parse(paths);
 }
 eel.expose(enable_convert)
 function enable_convert(){

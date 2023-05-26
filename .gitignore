@@ -4,3 +4,6 @@ web/images
 build 
 dist
 main.spec
+node_modules
+package-lock.json
+__pycache__
