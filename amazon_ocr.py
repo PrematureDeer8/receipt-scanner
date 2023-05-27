@@ -13,6 +13,7 @@ card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s
 total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
 
 def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0])):
+    receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts';
     error_messages = {
         "Duplicate":[],
         "NO AWS": False};
@@ -62,8 +63,6 @@ def amazon_ocr(check=False, path=(list(pathlib.Path.home().glob("*/Desktop"))[0]
                            ignore_index=True); 
     else:
         df = pd.DataFrame()
-    # print(df);
-    receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts'
 
     # digits = re.compile(r'receipt(\d+).jpg')
 

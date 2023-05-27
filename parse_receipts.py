@@ -2,18 +2,21 @@ import cv2 as cv;
 import numpy as np;
 from sympy import Polygon, Point
 from deskew import determine_skew
-import os
 import eel
+import pathlib
 
 def parse_receipts(file_paths,parsedir="web/images/parsed_receipts",counter=0):
+    receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts';
+    for receipt in receipts.iterdir():
+        receipt.unlink();
     correspondence = {};
     #get unread receipts
     images = [];
     for path in file_paths:
+        if("%20" in path):
+            path = path.replace("%20"," ")
         images.append(cv.imread(path));
         correspondence[path[path.rfind("/")+1:]] = [];
-        #move unread receipts to read receipts
-        # os.remove("{}/{}".format(dir,name));
     #len(images) > 0
     if(images):
         for i, image in enumerate(images):
