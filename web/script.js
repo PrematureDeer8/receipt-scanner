@@ -148,7 +148,6 @@ function error_message(errors){
         let text = "Duplicates:\n";
         let counter = 0;
         for(let receipt of errors["Duplicate"]){
-            console.log(receipt);
             let container = document.getElementById(String(receipt));
             container.className += " warning-bar";
             if(counter != (errors["Duplicate"].length-1)){
