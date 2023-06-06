@@ -10,13 +10,14 @@ function sticky(){
         navbar.classList.remove("sticky")
     }
 }
-document.querySelector("#uploadfiles").onchange = () => {
-    for(let file of files){
+// document.querySelector("#uploadfiles").onchange = () => {
+//     for(let file of files){
         
-    }
-}
+//     }
+// }
 document.querySelector("#uploadfiles").onchange = () => {
     let files = document.querySelector("#uploadfiles").files;
+    console.log(files);
      if(files.length != 0){
         document.querySelector(".submit-ocr").disabled = true;
         document.querySelector(".progress").style = "width: 0%";
@@ -52,7 +53,7 @@ document.querySelector("#uploadfiles").onchange = () => {
                 image_button.className = "image-tabs"
             }
             image.className = "image-content";
-            image.src = files[i].path;
+            image.src = "file:///"+ String(files[i].path);
             image_button.addEventListener("click", function (){
                 let buttons = document.querySelectorAll(".image-tabs");
                 for(let button of buttons){

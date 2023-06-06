@@ -4,9 +4,14 @@ import re
 import pathlib
 import sys
 import json
-from ReceiptScanner import ReceiptScanner;
-
-local = pathlib.Path.home() / "AppData" / "Local";
+from ReceiptScanner import ReceiptScanner
+import sys
+if(sys.platform == "darwin"):
+    eel.browsers.set_path('electron', 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron');
+    local = pathlib.Path.home() / "Library" / "Preferences";
+else:
+    eel.browsers.set_path('electron', 'node_modules/electron/dist/electron');
+    local = pathlib.Path.home() / "AppData" / "Local";  
 receipt_folder = local / "receipt-scanner";
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf");
 scanner = ReceiptScanner();
@@ -24,7 +29,6 @@ def store_preferences(page, web_sockets):
     sys.exit()
 
 
-eel.browsers.set_path('electron', 'node_modules/electron/dist/electron');
 
 eel.init("web");
 @eel.expose

@@ -1,0 +1,7 @@
+eel
+opencv-python
+sympy
+deskew
+pandas
+boto3
+openpyxl

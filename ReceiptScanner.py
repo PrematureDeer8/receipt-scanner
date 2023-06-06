@@ -21,7 +21,8 @@ class ReceiptScanner:
         self.total_patterns = ["TOTAL\W*\d+[.]\d{2}","PAYMENT\s*AMOUNT\s*\d+[.]\d{2}", "USD\s*[$]\s*\d+[.]\d{2}","BALANCE\s*\d+[.]\d{2}"]
         self.preferences = {
                         "file_path": str(pathlib.Path.home()),
-                        "count_duplicates": False
+                        "count_duplicates": False,
+                        "printerIP" : ""
         }   
     def parse_receipts(self, file_paths,parsedir="web/images/parsed_receipts",counter=0):
         for receipt in self.receipts.iterdir():
@@ -32,6 +33,7 @@ class ReceiptScanner:
         for path in file_paths:
             if("%20" in path):
                 path = path.replace("%20"," ")
+            path = str(pathlib.PurePath("/"+path));
             images.append(cv.imread(path));
             self.correspondence[path[path.rfind("/")+1:]] = [];
         #len(images) > 0
@@ -336,4 +338,6 @@ class ReceiptScanner:
                         datetime_str = group_df['DateTime'].dt.strftime('%m/%d/%y %I:%M:%S %p')
                         group_df['DateTime'] = datetime_str
                         group_df.to_excel(writer, sheet_name=_.strftime("%B"))
+    def autoscan(self):
+        print("Auto Scan...")
     
