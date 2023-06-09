@@ -37,7 +37,7 @@ body{
 }
 
 img {
-    /* position: relative; */
+    position: relative;
     z-index: 0;
     max-width: 500px;
     max-height: 700px;
@@ -144,6 +144,7 @@ img {
     }
 }
 .navigation {
+    z-index: 3;
     position: fixed;
     top: 0;
     width: 100%;
@@ -250,6 +251,7 @@ li{
 }
 div.polaroid{
     display: inline-block;
+    position: relative;
     max-width: 500px;
     width: fit-content;
     background-color: white;
@@ -257,6 +259,7 @@ div.polaroid{
     margin-right: 20px;
 }
 div.container {
+    position: relative;
     text-align: center;
     padding: 10px 20px;
 }
@@ -265,4 +268,10 @@ div.container.warning-bar{
 }
 div.container.danger-bar{
     border-bottom: 4px solid red;
+}
+.highlight {
+    position: absolute;
+    z-index: 2;
+    background-color: yellow;
+    opacity: 30%;
 }

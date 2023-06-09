@@ -10,14 +10,8 @@ function sticky(){
         navbar.classList.remove("sticky")
     }
 }
-// document.querySelector("#uploadfiles").onchange = () => {
-//     for(let file of files){
-        
-//     }
-// }
 document.querySelector("#uploadfiles").onchange = () => {
     let files = document.querySelector("#uploadfiles").files;
-    console.log(files);
      if(files.length != 0){
         document.querySelector(".submit-ocr").disabled = true;
         document.querySelector(".progress").style = "width: 0%";
@@ -64,7 +58,8 @@ document.querySelector("#uploadfiles").onchange = () => {
                 for(let divider of dividers){
                     divider.style.display = "none";
                 }
-                document.getElementById(name).style.display = "block";
+                let active_grouper = document.getElementById(name);
+                active_grouper.style.display = "block";
                 image_button.className += " active";
 
             });
@@ -88,21 +83,36 @@ function display_parsed_images(correspondence){
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
+            let name = Object.keys(parsed_image)[0];
             let polaroid = document.createElement("div");
             polaroid.className = "polaroid";
             let container = document.createElement("div");
             container.className = "container";
-            container.id = parsed_image;
+            container.id = name;
             let p = document.createElement("p");
-            p.innerText = parsed_image;
+            p.innerText = name;
             let image = document.createElement("img");
-            image.src = "images/parsed_receipts/"+parsed_image+".jpg";
+            image.src = "images/parsed_receipts/"+name+".jpg";
             image.className = "parsed";
+
+
+            let highlight = document.createElement("div");
+            highlight.className = "highlight";
+            let left = parsed_image[name]["Left"]*100;
+            let height =parsed_image[name]["Height"]*100;
+            highlight.style.left = String(left)+"%";
+            highlight.style.height = String(height)+"%";
+            let width = parsed_image[name]["Width"]*100;
+            let top = parsed_image[name]["Top"]*100;
+            highlight.style.top = String(top)+"%";
+            highlight.style.width = String(width)+"%";
+
             container.append(p);
+            polaroid.append(highlight);
             polaroid.append(image);
-            polaroid.append(container);
+            // polaroid.append(container);
             divider.append(polaroid);
-        } 
+        }
     }
 }
 document.querySelector(".submit").onclick = () => {
@@ -249,3 +259,4 @@ document.querySelector(".close").onclick = () => {
     document.getElementById('prefModal').style.display = 'none'
     eel.updateperferences(document.querySelector(".input").value,document.querySelector(".duplicate").checked)
 }
+

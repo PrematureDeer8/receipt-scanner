@@ -23,8 +23,24 @@ class ReceiptScanner:
                         "file_path": str(pathlib.Path.home()),
                         "count_duplicates": False,
                         "printerIP" : ""
-        }   
-    def parse_receipts(self, file_paths,parsedir="web/images/parsed_receipts",counter=0):
+        }
+        self.client = boto3.client("rekognition",
+                                    aws_access_key_id=config.ACCESS_KEY,
+                                    aws_secret_access_key=config.SECRET_KEY,
+                                    region_name=config.REGION)
+    def parse_receipts(self, file_paths,counter=0):
+        error_messages = {
+            "Duplicate":[],
+            "NO AWS": False};
+        try:
+            client = boto3.client("rekognition",
+                                    aws_access_key_id=config.ACCESS_KEY,
+                                    aws_secret_access_key=config.SECRET_KEY,
+                                    region_name=config.REGION)
+        except:
+            error_messages["NO AWS"] = True;
+            eel.error_message(error_messages);
+            return;
         for receipt in self.receipts.iterdir():
             receipt.unlink();
         self.correspondence = {};
@@ -98,9 +114,6 @@ class ReceiptScanner:
                     else:
                         w = int(rotate[index][2][0]//2)
                         h = int(rotate[index][2][1]//2)
-                    # cv.circle(image,(int(rotate[index][0][0]),int(rotate[index][0][1])),50,(0,0,255),thickness=-1)
-                    # cv.line(image,(int(rotate[index][0][0]-w), int(rotate[index][0][1])),(int(rotate[index][0][0]+w),int(rotate[index][0][1])),(index*100,255,0),30)
-                    # cv.line(image,(int(rotate[index][0][0]),int(rotate[index][0][1]-h)),(int(rotate[index][0][0]),int(rotate[index][0][1]+h)),(255,0,index*100),30)
                     y = center_point[1]-h 
                     x = center_point[0]-w
                     x1 = center_point[0]+w
@@ -122,12 +135,82 @@ class ReceiptScanner:
                     rot_mat = cv.getRotationMatrix2D(center=center_point,angle=angle,scale=1.0);
                     rotated = cv.warpAffine(receipt,rot_mat,(receipt.shape[1],receipt.shape[0]))
                     ret, mask = cv.threshold(rotated,190,255,cv.THRESH_BINARY)
-                    cv.imwrite("{}/receipt".format(parsedir)+str((counter))+".jpg",mask);
-                    self.correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append("receipt"+str(counter));
+                    pth = self.receipts / ("receipt"+str(counter)+".jpg");
+                    cv.imwrite(str(pth),mask);
+                    response = self.client.detect_text(Image={"Bytes": pth.read_bytes()});
+                    detections = response["TextDetections"];
+                    string = '';
+                    bounding_boxes = {};
+                    for detection in detections:
+                        textType = detection["Type"]
+                        text = detection["DetectedText"]
+                        bounding_boxes[text] = detection["Geometry"]["BoundingBox"];
+                        if(textType.lower() == "line"):
+                            string += text + "\n";
+                    dates = [];
+                    box_keys = list(bounding_boxes.keys());
+                    datetime_date = {};
+                    for x, pattern in enumerate(self.date_patterns):
+                        pos_dates = re.findall(pattern,string)
+                        if(len(pos_dates) != 0 ):
+                            for date in pos_dates:
+                                datetime_obj = dateutil.parser.parse(date);
+                                if(date in box_keys):
+                                    datetime_date[datetime_obj] = date;
+                                    dates.append(datetime_obj);
+                    self.correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append({f"receipt{counter}" : bounding_boxes[datetime_date[max(set(dates), key= dates.count)]]});
                     counter += 1;
-                eel.progress_bar(i+1);
-    
+        # for receipt in self.receipts.iterdir():
+        #     receipt_name = re.findall("receipt\d+",str(receipt))[0]
+        #     error_messages[receipt_name] = [];
+        #     image = receipt.read_bytes()
+        #     try:
+        #         response = client.detect_text(Image={"Bytes":image});
+        #     except:
+        #         error_messages["NO AWS"] = True;
+        #         eel.error_message(error_messages);
+        #         return;
+        #     detections = response["TextDetections"];
+                            # eel.highlight(bounding_boxes[date], "Date");
+                            # switch = True;
+                    # if(switch):
+                    #     break;
+            # times = [];
+            # switch = False;
+            # for pattern in self.time_patterns:
+            #     pos_times = re.findall(pattern, string);
+            #     if(len(pos_times) != 0):
+            #         for time in pos_times:
+            #             if(time not in times): 
+            #                 if(not("pm" in time.lower() or "am"  in time.lower())):
+            #                     for i in range(len(time)-1,-1,-1):
+            #                         if(time[i].isdigit()):
+            #                             time = time[:i+1] 
+            #                             break;
+            #                 times.append(time);
+            #                 switch= True;
+            #     if(switch):
+            #         break;
+            # cards = [];
+            # switch = False;
+            # for pattern in self.card_patterns:
+            #     pos_cards = re.findall(pattern,string.upper())
+            #     if(len(pos_cards) != 0):
+            #         for card in pos_cards:
+            #             if(card not in cards):
+            #                 cards.append(card[-4:]);
+            #                 switch = True;
+            #         if(switch):
+            #             break;
+            # total_pos_totals = [];
+            # for pattern in self.total_patterns:
+            #     pos_total = re.findall(pattern,string.upper())
+            #     for total in pos_total:
+            #         total_pos_totals.append(total);
+            # nuf
 
+
+        eel.progress_bar(i+1);
 
 
     def amazon_ocr(self, path, check=False):
