@@ -40,9 +40,8 @@ img {
     position: relative;
     z-index: 0;
     max-width: 500px;
-    max-height: 700px;
     width: auto;
-    height: auto;
+    height: 700px;
 }
 .submit {
     float: right;
@@ -274,4 +273,7 @@ div.container.danger-bar{
     z-index: 2;
     background-color: yellow;
     opacity: 30%;
+}
+.highlight:hover {
+    background-color: rgb(255, 90, 117);
 }

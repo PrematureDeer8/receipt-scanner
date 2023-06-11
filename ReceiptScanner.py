@@ -10,6 +10,7 @@ import boto3
 import re
 import pandas as pd
 import dateutil.parser
+import time
 
 class ReceiptScanner:
     def __init__(self):
@@ -128,7 +129,6 @@ class ReceiptScanner:
                 eel.progress_bar(i+.8)
                 #deskew
                 for index, receipt in enumerate(receipts):
-                    # cv.imshow("receipt"+str(index+1),receipt);
                     angle = determine_skew(receipt);
                     # print("Angle: "+str(angle))
                     center_point = (receipt.shape[0]//2,receipt.shape[1]//2)
@@ -137,7 +137,9 @@ class ReceiptScanner:
                     ret, mask = cv.threshold(rotated,190,255,cv.THRESH_BINARY)
                     pth = self.receipts / ("receipt"+str(counter)+".jpg");
                     cv.imwrite(str(pth),mask);
+                    start = time.perf_counter();
                     response = self.client.detect_text(Image={"Bytes": pth.read_bytes()});
+                    print("Time it send and receive response from amazon: " +str(time.perf_counter() - start))
                     detections = response["TextDetections"];
                     string = '';
                     bounding_boxes = {};
@@ -158,57 +160,54 @@ class ReceiptScanner:
                                 if(date in box_keys):
                                     datetime_date[datetime_obj] = date;
                                     dates.append(datetime_obj);
-                    self.correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append({f"receipt{counter}" : bounding_boxes[datetime_date[max(set(dates), key= dates.count)]]});
+                    receipt_dict = {}
+                    receipt_dict["Date"] = bounding_boxes[datetime_date[max(set(dates), key= dates.count)]];
+                    times = [];
+                    am_pm = False;
+                    for pattern in self.time_patterns:
+                        pos_times = re.findall(pattern, string);
+                        if(len(pos_times) != 0):
+                            for t in pos_times:
+                                if("am" in t.lower() or "pm" in t.lower()):
+                                    times.append(t);
+                                    am_pm = True;
+                                elif(not am_pm):
+                                    times.append(t);
+                    hour = max(set(times), key=times.count);
+                    if(am_pm):
+                        # should give us "PM" OR "AM"
+                        mm = hour[-2:]
+                        if(mm in box_keys):
+                            bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] = bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] + bounding_boxes[mm]["Width"] + (bounding_boxes[mm]["Left"]-(bounding_boxes[hour.replace(" ", "")[:-2]]["Left"]+bounding_boxes[hour.replace(" ", "")[:-2]]["Width"]));
+                    
+                        
+                    receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
+                    cards = [];
+                    str_cards = [];
+                    for pattern in self.card_patterns:
+                        pos_cards = re.findall(pattern,string.upper())
+                        if(len(pos_cards) != 0):
+                            for card in pos_cards:
+                                if(card not in cards):
+                                    str_cards.append(card);
+                                    cards.append(card[-4:]);
+                    card = max(set(cards), key=cards.count);
+                    receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
+                    totals = [];
+                    numbers = [];
+                    for pattern in self.total_patterns:
+                        pos_total = re.findall(pattern,string.upper())
+                        for total in pos_total:
+                            totals.append(total);
+                            str_number = '';
+                            for char in total:
+                                if(char.isdigit()):
+                                    str_number += char;
+                            numbers.append(int(str_number)/100);
+                    total = totals[numbers.index(max(numbers))].split();
+                    receipt_dict["Total"] = bounding_boxes[total[-1]]
+                    self.correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append({f"receipt{counter}" : receipt_dict});
                     counter += 1;
-        # for receipt in self.receipts.iterdir():
-        #     receipt_name = re.findall("receipt\d+",str(receipt))[0]
-        #     error_messages[receipt_name] = [];
-        #     image = receipt.read_bytes()
-        #     try:
-        #         response = client.detect_text(Image={"Bytes":image});
-        #     except:
-        #         error_messages["NO AWS"] = True;
-        #         eel.error_message(error_messages);
-        #         return;
-        #     detections = response["TextDetections"];
-                            # eel.highlight(bounding_boxes[date], "Date");
-                            # switch = True;
-                    # if(switch):
-                    #     break;
-            # times = [];
-            # switch = False;
-            # for pattern in self.time_patterns:
-            #     pos_times = re.findall(pattern, string);
-            #     if(len(pos_times) != 0):
-            #         for time in pos_times:
-            #             if(time not in times): 
-            #                 if(not("pm" in time.lower() or "am"  in time.lower())):
-            #                     for i in range(len(time)-1,-1,-1):
-            #                         if(time[i].isdigit()):
-            #                             time = time[:i+1] 
-            #                             break;
-            #                 times.append(time);
-            #                 switch= True;
-            #     if(switch):
-            #         break;
-            # cards = [];
-            # switch = False;
-            # for pattern in self.card_patterns:
-            #     pos_cards = re.findall(pattern,string.upper())
-            #     if(len(pos_cards) != 0):
-            #         for card in pos_cards:
-            #             if(card not in cards):
-            #                 cards.append(card[-4:]);
-            #                 switch = True;
-            #         if(switch):
-            #             break;
-            # total_pos_totals = [];
-            # for pattern in self.total_patterns:
-            #     pos_total = re.findall(pattern,string.upper())
-            #     for total in pos_total:
-            #         total_pos_totals.append(total);
-            # nuf
-
 
         eel.progress_bar(i+1);
 

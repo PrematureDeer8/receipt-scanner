@@ -95,22 +95,23 @@ function display_parsed_images(correspondence){
             image.src = "images/parsed_receipts/"+name+".jpg";
             image.className = "parsed";
 
+            for(let element in parsed_image[name]){
+                let highlight = document.createElement("div");
+                highlight.className = "highlight";
+                let left = parsed_image[name][element]["Left"]*100;
+                let height =parsed_image[name][element]["Height"]*100;
+                highlight.style.left = String(left)+"%";
+                highlight.style.height = String(height)+"%";
+                let width = parsed_image[name][element]["Width"]*100;
+                let top = parsed_image[name][element]["Top"]*700;
+                highlight.style.top = String(top)+"px";
+                highlight.style.width = String(width)+"%";
+                polaroid.append(highlight);
+            }
 
-            let highlight = document.createElement("div");
-            highlight.className = "highlight";
-            let left = parsed_image[name]["Left"]*100;
-            let height =parsed_image[name]["Height"]*100;
-            highlight.style.left = String(left)+"%";
-            highlight.style.height = String(height)+"%";
-            let width = parsed_image[name]["Width"]*100;
-            let top = parsed_image[name]["Top"]*100;
-            highlight.style.top = String(top)+"%";
-            highlight.style.width = String(width)+"%";
-
-            container.append(p);
-            polaroid.append(highlight);
+            container.append(p);;
             polaroid.append(image);
-            // polaroid.append(container);
+            polaroid.append(container);
             divider.append(polaroid);
         }
     }
