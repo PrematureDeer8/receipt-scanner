@@ -10,6 +10,7 @@ import boto3
 import re
 import pandas as pd
 import dateutil.parser
+import concurrent.futures
 import time
 
 class ReceiptScanner:
@@ -33,15 +34,6 @@ class ReceiptScanner:
         error_messages = {
             "Duplicate":[],
             "NO AWS": False};
-        try:
-            client = boto3.client("rekognition",
-                                    aws_access_key_id=config.ACCESS_KEY,
-                                    aws_secret_access_key=config.SECRET_KEY,
-                                    region_name=config.REGION)
-        except:
-            error_messages["NO AWS"] = True;
-            eel.error_message(error_messages);
-            return;
         for receipt in self.receipts.iterdir():
             receipt.unlink();
         self.correspondence = {};
@@ -55,6 +47,7 @@ class ReceiptScanner:
             self.correspondence[path[path.rfind("/")+1:]] = [];
         #len(images) > 0
         if(images):
+            child_parentImage = {};
             for i, image in enumerate(images):
                 iwidth , iheight = image.shape[:2]
                 gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -127,20 +120,28 @@ class ReceiptScanner:
                     cropped = receipt[y: y1, x:x1]
                     receipts.append(cropped);
                 eel.progress_bar(i+.8)
-                #deskew
+                #deskew and finalize image
                 for index, receipt in enumerate(receipts):
                     angle = determine_skew(receipt);
-                    # print("Angle: "+str(angle))
                     center_point = (receipt.shape[0]//2,receipt.shape[1]//2)
                     rot_mat = cv.getRotationMatrix2D(center=center_point,angle=angle,scale=1.0);
                     rotated = cv.warpAffine(receipt,rot_mat,(receipt.shape[1],receipt.shape[0]))
                     ret, mask = cv.threshold(rotated,190,255,cv.THRESH_BINARY)
                     pth = self.receipts / ("receipt"+str(counter)+".jpg");
                     cv.imwrite(str(pth),mask);
-                    start = time.perf_counter();
-                    response = self.client.detect_text(Image={"Bytes": pth.read_bytes()});
-                    print("Time it send and receive response from amazon: " +str(time.perf_counter() - start))
-                    detections = response["TextDetections"];
+                    child_parentImage["receipt"+str(counter)+".jpg"] = file_paths[i][file_paths[i].rfind("/")+1:]
+                    counter += 1;
+            # multiprocessing
+            start = time.perf_counter();
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                for image, result in zip(
+                    self.receipts.iterdir(), 
+                    executor.map(
+                        lambda image: self.client.detect_text(Image={'Bytes': image.read_bytes()}),
+                        self.receipts.iterdir()
+                    )
+                ):
+                    detections = result["TextDetections"];
                     string = '';
                     bounding_boxes = {};
                     for detection in detections:
@@ -206,9 +207,9 @@ class ReceiptScanner:
                             numbers.append(int(str_number)/100);
                     total = totals[numbers.index(max(numbers))].split();
                     receipt_dict["Total"] = bounding_boxes[total[-1]]
-                    self.correspondence[file_paths[i][file_paths[i].rfind("/")+1:]].append({f"receipt{counter}" : receipt_dict});
-                    counter += 1;
-
+                    key = str(image)[str(image).rfind("/")+1:]
+                    self.correspondence[child_parentImage[key]].append({key[:-4] : receipt_dict});
+            print(f"Multiprocessing takes {time.perf_counter() - start} seconds to complete!")
         eel.progress_bar(i+1);
 
 

@@ -1,3 +1,5 @@
+from gevent import monkey
+monkey.patch_all();
 import eel
 import eel.browsers
 import re
@@ -6,6 +8,7 @@ import sys
 import json
 from ReceiptScanner import ReceiptScanner
 import sys
+
 if(sys.platform == "darwin"):
     eel.browsers.set_path('electron', 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron');
     local = pathlib.Path.home() / "Library" / "Preferences";
