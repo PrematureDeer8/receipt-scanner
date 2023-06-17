@@ -162,7 +162,9 @@ class ReceiptScanner:
                                     datetime_date[datetime_obj] = date;
                                     dates.append(datetime_obj);
                     receipt_dict = {}
-                    receipt_dict["Date"] = bounding_boxes[datetime_date[max(set(dates), key= dates.count)]];
+                    value = max(set(dates), key=dates.count);
+                    bounding_boxes[datetime_date[value]]["value"] = value.strftime("%Y-%m-%d")
+                    receipt_dict["Date"] = bounding_boxes[datetime_date[value]];
                     times = [];
                     am_pm = False;
                     for pattern in self.time_patterns:
@@ -181,7 +183,7 @@ class ReceiptScanner:
                         if(mm in box_keys):
                             bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] = bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] + bounding_boxes[mm]["Width"] + (bounding_boxes[mm]["Left"]-(bounding_boxes[hour.replace(" ", "")[:-2]]["Left"]+bounding_boxes[hour.replace(" ", "")[:-2]]["Width"]));
                     
-                        
+                    bounding_boxes[hour.replace(" ", "")[:-2]]["value"] = dateutil.parser.parse(hour).strftime("%H:%M:%S");
                     receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
                     cards = [];
                     str_cards = [];
@@ -193,6 +195,7 @@ class ReceiptScanner:
                                     str_cards.append(card);
                                     cards.append(card[-4:]);
                     card = max(set(cards), key=cards.count);
+                    bounding_boxes[str_cards[cards.index(card)]]["value"] = int(card);
                     receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
                     totals = [];
                     numbers = [];
@@ -206,6 +209,7 @@ class ReceiptScanner:
                                     str_number += char;
                             numbers.append(int(str_number)/100);
                     total = totals[numbers.index(max(numbers))].split();
+                    bounding_boxes[total[-1]]["value"] = max(numbers);
                     receipt_dict["Total"] = bounding_boxes[total[-1]]
                     key = str(image)[str(image).rfind("/")+1:]
                     self.correspondence[child_parentImage[key]].append({key[:-4] : receipt_dict});

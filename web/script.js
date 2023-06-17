@@ -80,6 +80,7 @@ document.querySelector("#uploadfiles").onchange = () => {
 eel.expose(display_parsed_images)
 function display_parsed_images(correspondence){
     const og_imgs  = Object.keys(correspondence);
+    console.log(correspondence);
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
@@ -89,6 +90,34 @@ function display_parsed_images(correspondence){
             let container = document.createElement("div");
             container.className = "container";
             container.id = name;
+            let overlay = document.createElement("div");
+            overlay.className = "overlay";
+            let overlayinnerHTML = `
+            <label>Date</label>
+            <br>
+            <input type='date' value='${parsed_image[name]["Date"]["value"]}'>
+            <br>
+            <label>Time</label>
+            <br>
+            <input type="time" value='${parsed_image[name]["Time"]["value"]}'  step=1>
+            <br>
+            <label>Card</label>
+            <br>
+            <input type='number' value='${parsed_image[name]["Card"]["value"]}'>
+            <br>
+            <label>Total</label>
+            <br>
+            <input type='number' value='${parsed_image[name]["Total"]["value"]}'>
+            `
+            overlay.innerHTML = overlayinnerHTML;
+
+            container.onclick = function(){
+                if(overlay.style.height == "100%"){
+                    overlay.style.height = "0";
+                }else{
+                    overlay.style.height = "100%";
+                }
+            }
             let p = document.createElement("p");
             p.innerText = name;
             let image = document.createElement("img");
@@ -109,8 +138,9 @@ function display_parsed_images(correspondence){
                 polaroid.append(highlight);
             }
 
-            container.append(p);;
+            container.append(p);
             polaroid.append(image);
+            polaroid.append(overlay);
             polaroid.append(container);
             divider.append(polaroid);
         }
