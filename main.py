@@ -43,6 +43,9 @@ def updateperferences(file_path, count_duplicates):
 def parse(file_paths):
     scanner.parse_receipts(file_paths);
     eel.display_parsed_images(scanner.correspondence);
+    if(scanner.errors_exist):
+        print(scanner.error_messages)
+        eel.error_message(scanner.error_messages);
     # eel.enable_convert();
 
 @eel.expose

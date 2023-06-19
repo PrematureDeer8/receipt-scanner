@@ -30,10 +30,25 @@ class ReceiptScanner:
                                     aws_access_key_id=config.ACCESS_KEY,
                                     aws_secret_access_key=config.SECRET_KEY,
                                     region_name=config.REGION)
-    def parse_receipts(self, file_paths,counter=0):
-        error_messages = {
+        self.NO_HIGHLIGHT = {"width": 0, "height": 0, "top": 0, "left": 0, "value": ""};
+        self.error_messages = {
             "Duplicate":[],
-            "NO AWS": False};
+            "NO AWS": False,
+            "Date": [],
+            "Time": [],
+            "Card": [],
+            "Total":[]
+            };
+        self.errors_exist = False;
+    def parse_receipts(self, file_paths,counter=0):
+        self.error_messages = {
+            "Duplicate":[],
+            "NO AWS": False,
+            "Date": [],
+            "Time": [],
+            "Card": [],
+            "Total":[]
+            };
         for receipt in self.receipts.iterdir():
             receipt.unlink();
         self.correspondence = {};
@@ -141,6 +156,7 @@ class ReceiptScanner:
                         self.receipts.iterdir()
                     )
                 ):
+                    key = str(image)[str(image).rfind("/")+1:]
                     detections = result["TextDetections"];
                     string = '';
                     bounding_boxes = {};
@@ -162,9 +178,13 @@ class ReceiptScanner:
                                     datetime_date[datetime_obj] = date;
                                     dates.append(datetime_obj);
                     receipt_dict = {}
-                    value = max(set(dates), key=dates.count);
-                    bounding_boxes[datetime_date[value]]["value"] = value.strftime("%Y-%m-%d")
-                    receipt_dict["Date"] = bounding_boxes[datetime_date[value]];
+                    if(dates):
+                        value = max(set(dates), key=dates.count);
+                        bounding_boxes[datetime_date[value]]["value"] = value.strftime("%Y-%m-%d")
+                        receipt_dict["Date"] = bounding_boxes[datetime_date[value]];
+                    else:
+                        receipt_dict["Date"] = self.NO_HIGHLIGHT;
+                        self.error_messages["Date"].append(key[:-4]);
                     times = [];
                     am_pm = False;
                     for pattern in self.time_patterns:
@@ -176,15 +196,20 @@ class ReceiptScanner:
                                     am_pm = True;
                                 elif(not am_pm):
                                     times.append(t);
-                    hour = max(set(times), key=times.count);
-                    if(am_pm):
-                        # should give us "PM" OR "AM"
-                        mm = hour[-2:]
-                        if(mm in box_keys):
-                            bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] = bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] + bounding_boxes[mm]["Width"] + (bounding_boxes[mm]["Left"]-(bounding_boxes[hour.replace(" ", "")[:-2]]["Left"]+bounding_boxes[hour.replace(" ", "")[:-2]]["Width"]));
+                    if(times):
+                        hour = max(set(times), key=times.count);
+                        if(am_pm):
+                            # should give us "PM" OR "AM"
+                            mm = hour[-2:]
+                            if(mm in box_keys):
+                                bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] = bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] + bounding_boxes[mm]["Width"] + (bounding_boxes[mm]["Left"]-(bounding_boxes[hour.replace(" ", "")[:-2]]["Left"]+bounding_boxes[hour.replace(" ", "")[:-2]]["Width"]));
+                        
+                        bounding_boxes[hour.replace(" ", "")[:-2]]["value"] = dateutil.parser.parse(hour).strftime("%H:%M:%S");
+                        receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
+                    else:
+                        receipt_dict["Time"] = self.NO_HIGHLIGHT;
+                        self.error_messages["Time"].append(key[:-4]);
                     
-                    bounding_boxes[hour.replace(" ", "")[:-2]]["value"] = dateutil.parser.parse(hour).strftime("%H:%M:%S");
-                    receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
                     cards = [];
                     str_cards = [];
                     for pattern in self.card_patterns:
@@ -194,9 +219,14 @@ class ReceiptScanner:
                                 if(card not in cards):
                                     str_cards.append(card);
                                     cards.append(card[-4:]);
-                    card = max(set(cards), key=cards.count);
-                    bounding_boxes[str_cards[cards.index(card)]]["value"] = int(card);
-                    receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
+                    if(cards):
+                        card = max(set(cards), key=cards.count);
+                        bounding_boxes[str_cards[cards.index(card)]]["value"] = int(card);
+                        receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
+                    else:
+                        receipt_dict["Card"] = self.NO_HIGHLIGHT;
+                        self.error_messages["Card"].append(key[:-4]);
+
                     totals = [];
                     numbers = [];
                     for pattern in self.total_patterns:
@@ -208,12 +238,20 @@ class ReceiptScanner:
                                 if(char.isdigit()):
                                     str_number += char;
                             numbers.append(int(str_number)/100);
-                    total = totals[numbers.index(max(numbers))].split();
-                    bounding_boxes[total[-1]]["value"] = max(numbers);
-                    receipt_dict["Total"] = bounding_boxes[total[-1]]
-                    key = str(image)[str(image).rfind("/")+1:]
+                    if(numbers):
+                        total = totals[numbers.index(max(numbers))].split();
+                        bounding_boxes[total[-1]]["value"] = max(numbers);
+                        receipt_dict["Total"] = bounding_boxes[total[-1]];
+                    else:
+                        receipt_dict = self.NO_HIGHLIGHT;
+                        self.error_messages["Total"].append(key[:-4]);
                     self.correspondence[child_parentImage[key]].append({key[:-4] : receipt_dict});
             print(f"Multiprocessing takes {time.perf_counter() - start} seconds to complete!")
+        #if we encountered any errors send them
+        for key in self.error_messages:
+            if(self.error_messages[key]):
+                self.errors_exist = True;
+                break;
         eel.progress_bar(i+1);
 
 

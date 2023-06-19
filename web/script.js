@@ -95,19 +95,19 @@ function display_parsed_images(correspondence){
             let overlayinnerHTML = `
             <label>Date</label>
             <br>
-            <input type='date' value='${parsed_image[name]["Date"]["value"]}'>
+            <input type='date' value='${parsed_image[name]["Date"]["value"]}' required>
             <br>
             <label>Time</label>
             <br>
-            <input type="time" value='${parsed_image[name]["Time"]["value"]}'  step=1>
+            <input type="time" value='${parsed_image[name]["Time"]["value"]}'  step=1 required >
             <br>
             <label>Card</label>
             <br>
-            <input type='number' value='${parsed_image[name]["Card"]["value"]}'>
+            <input type='number' placeholder=" " value='${parsed_image[name]["Card"]["value"]}'>
             <br>
             <label>Total</label>
             <br>
-            <input type='number' value='${parsed_image[name]["Total"]["value"]}'>
+            <input type='number' placeholder=" " value='${parsed_image[name]["Total"]["value"]}'>
             `
             overlay.innerHTML = overlayinnerHTML;
 
@@ -204,16 +204,18 @@ function error_message(errors){
     }else{
         let counter = 0;
         let text = "";
+        let precedence = false;
         for(let key in errors){
-            if(counter > 1){
-                let container = document.getElementById(String(key));
-                if(container != undefined && errors[key].length > 0){
-                    text+= String(key) + ": "
-                    container.className += " danger-bar";
-                    for(let error of errors[key]){
-                        text += error + " "
-                    }        
-                    text+= "\n";
+            if(errors[key].length > 0){
+                for(let id of errors[key]){
+                    let container = document.getElementById(String(id));
+                    if(container != undefined){
+                        if(key == "Date" || key == "Time"){
+                            container.classList.add("danger-bar")
+                        }else if(!container.classList.contains("danger-bar")){
+                            container.classList.add("warning-bar")
+                        }
+                    }
                 }
             }
             counter += 1;
