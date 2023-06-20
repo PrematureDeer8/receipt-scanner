@@ -270,11 +270,11 @@ div.container.warning-bar{
 div.container.danger-bar{
     border-bottom: 4px solid red;
 }
-input[type="date"][value=""]:invalid, input[type="time"][value=""]:invalid{
+input[type="date"]:invalid, input[type="time"]:invalid{
     border: 2px solid red;
 }
-input[type="number"][value=""]:placeholder-shown{
-    border: 2px solid yellow;
+input[type="number"]:placeholder-shown{
+    border: 2px solid rgb(199, 199, 3);
 }
 .highlight {
     position: absolute;

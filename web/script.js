@@ -80,7 +80,7 @@ document.querySelector("#uploadfiles").onchange = () => {
 eel.expose(display_parsed_images)
 function display_parsed_images(correspondence){
     const og_imgs  = Object.keys(correspondence);
-    console.log(correspondence);
+    let validity = true;
     for(let og_img of og_imgs){
         let divider = document.getElementById(og_img);
         for(let parsed_image of correspondence[og_img]){
@@ -92,30 +92,11 @@ function display_parsed_images(correspondence){
             container.id = name;
             let overlay = document.createElement("div");
             overlay.className = "overlay";
-            let overlayinnerHTML = `
-            <label>Date</label>
-            <br>
-            <input type='date' value='${parsed_image[name]["Date"]["value"]}' required>
-            <br>
-            <label>Time</label>
-            <br>
-            <input type="time" value='${parsed_image[name]["Time"]["value"]}'  step=1 required >
-            <br>
-            <label>Card</label>
-            <br>
-            <input type='number' placeholder=" " value='${parsed_image[name]["Card"]["value"]}'>
-            <br>
-            <label>Total</label>
-            <br>
-            <input type='number' placeholder=" " value='${parsed_image[name]["Total"]["value"]}'>
-            `
-            overlay.innerHTML = overlayinnerHTML;
-
             container.onclick = function(){
-                if(overlay.style.height == "100%"){
+                if(overlay.style.height == "35%"){
                     overlay.style.height = "0";
                 }else{
-                    overlay.style.height = "100%";
+                    overlay.style.height = "35%";
                 }
             }
             let p = document.createElement("p");
@@ -123,8 +104,90 @@ function display_parsed_images(correspondence){
             let image = document.createElement("img");
             image.src = "images/parsed_receipts/"+name+".jpg";
             image.className = "parsed";
-
             for(let element in parsed_image[name]){
+                let label = document.createElement("label");
+                label.innerText = element;
+                let input = document.createElement("input");
+                if(element.toLowerCase() == "time" || element.toLowerCase() == "date"){
+                    // <input type="Date or Time">
+                    input.type = element.toLowerCase();
+                    if(input.type == "time"){
+                        input.step = "1";
+                    }
+                    if(parsed_image[name][element]["value"] != ""){
+                        input.value = parsed_image[name][element]["value"];
+                    }
+                    input.required = true;
+                    //check the validity of each input field with date or time type
+                    // they all msut be valid
+                    if(input.checkValidity() && validity){
+                        validity = true;
+                    }else{
+                        validity = false;
+                    }
+                    input.onchange = function(){
+                        // if input is valid then we must change
+                        // the bottom border bar
+                        // red danger bar takes precedence
+                        if(input.checkValidity()){
+                            container.classList.remove('danger-bar');
+                            //check if there another empty field
+                            let parent = input.parentElement;
+                            for(let child of parent.children){
+                                //get <input type="number">
+                                if(child.type == "number" && child.value === ""){ 
+                                    container.classList.add("warning-bar");
+                                    break;
+                                }   
+                            }
+                        }else{
+                            if(container.classList.contains("warning-bar")){
+                                container.classList.remove("warning-bar");
+                            }
+                            container.classList.add("danger-bar")
+                        }
+                        let dates = document.querySelectorAll("input[type='date']");
+                        let times = document.querySelectorAll("input[type='time']");
+                        let total_lengths = dates.length + times.length;
+                        let true_counter = 0;
+                        for(let date of dates){
+                            if(date.checkValidity()){
+                                true_counter += 1;
+                            }
+                        }
+                        for(let time of times){
+                            if(time.checkValidity()){
+                                true_counter += 1;
+                            }
+                        }
+                        if(total_lengths == true_counter){
+                            document.querySelector(".submit-ocr").disabled = false;
+                        }else{
+                            document.querySelector(".submit-ocr").disabled = true;
+                        }
+                    }
+
+                }else{
+                    // <input type="number">
+                    input.type = "number";
+                    if(parsed_image[name][element]["value"] == ""){
+                        input.placeholder = " ";
+                    }else{
+                        input.value = parsed_image[name][element]["value"]
+                    }
+                    input.placeholder = " ";
+                    input.onchange = function(){
+                        if(input.value == ""){
+                            container.classList.add("warning-bar");
+                        }else{
+                            container.classList.remove("warning-bar")
+                        }
+                    }
+                }
+                overlay.append(label);
+                overlay.append(document.createElement("br"));
+                overlay.append(input);
+                overlay.append(document.createElement("br"));
                 let highlight = document.createElement("div");
                 highlight.className = "highlight";
                 let left = parsed_image[name][element]["Left"]*100;
@@ -144,6 +207,10 @@ function display_parsed_images(correspondence){
             polaroid.append(container);
             divider.append(polaroid);
         }
+    }
+    // all receipts are valid (1st time)
+    if(validity){
+        enable_convert();
     }
 }
 document.querySelector(".submit").onclick = () => {
