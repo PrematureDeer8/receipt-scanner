@@ -51,21 +51,21 @@ def parse(file_paths):
     # eel.enable_convert();
 
 @eel.expose
-def ocr():
+def ocr(data):
     error = {
         "Exists": False
     }
     path = pathlib.Path(scanner.preferences["file_path"])
     exists = path.exists()
     if(exists and str(scanner.preferences["file_path"]) != ""):
-        scanner.amazon_ocr(path=path,check=scanner.preferences["count_duplicates"]);
+        scanner.amazon_ocr(path=path,check_duplicate=scanner.preferences["count_duplicates"],data=data);
     else:
         if(not exists):
             error["Exists"] = True;
             error["message"] = f"Path {scanner.preferences['file_path']} does not exists! Proceding with default path."
             eel.error_message(error)
-        scanner.amazon_ocr(check=scanner.preferences["count_duplicates"], path=pathlib.Path.home());
-    eel.reable_excel_button(); 
+        scanner.amazon_ocr(check_duplicate=scanner.preferences["count_duplicates"], path=pathlib.Path.home(), data=data);
+    eel.enable_convert(); 
 @eel.expose
 def default_file_path():
     return scanner.preferences["file_path"]

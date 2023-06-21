@@ -210,6 +210,24 @@ class ReceiptScanner:
                         receipt_dict["Time"] = self.NO_HIGHLIGHT;
                         self.error_messages["Time"].append(key[:-4]);
                     
+                    if(
+                        re.search("FUEL", string.upper()) != None 
+                        or re.search("PUMP#\s*\d+", string.upper()) != None
+                    ):
+                        receipt_dict["Type"] = "GAS";
+                    elif(
+                        re.search("HOME\s*DEPOT",string.upper()) != None 
+                        or re.search("HOW\s*DOERS\s*GET\s*MORE\s*DONE",string.upper()) != None
+                    ):
+                        receipt_dict["Type"] = "MATERIALS";
+                    elif(re.search("OFFICE",string.upper())!= None 
+                    ):
+                        receipt_dict["Type"] = "OFFICE SUPPLIES";
+                    elif(re.search("GROCERY",string.upper())!= None):
+                        receipt_dict["Type"] = "GROCERIES";
+                    else:
+                        receipt_dict["Type"] = "";
+                    
                     cards = [];
                     str_cards = [];
                     for pattern in self.card_patterns:
@@ -255,23 +273,13 @@ class ReceiptScanner:
         eel.progress_bar(i+1);
 
 
-    def amazon_ocr(self, path, check=False):
-        error_messages = {
-            "Duplicate":[],
-            "NO AWS": False};
-        try:
-            client = boto3.client("rekognition",
-                                    aws_access_key_id=config.ACCESS_KEY,
-                                    aws_secret_access_key=config.SECRET_KEY,
-                                    region_name=config.REGION)
-        except:
-            error_messages["NO AWS"] = True;
-            eel.error_message(error_messages);
-            return;
-        
+    def amazon_ocr(self, path, data, check_duplicate=False):
         expenses_folder = path / "expenses";
         excel_files = [];
-        has_errors = False;
+        self.error_messages = {
+            "Duplicate": []
+        };
+        # see if the expesnes file exists 
         if(expenses_folder.exists()):
             excel_files = sorted(list(expenses_folder.glob("*.xlsx")));
             #check to see if excel file is already opened
@@ -287,15 +295,48 @@ class ReceiptScanner:
                     }
                     eel.error_message(error);
                     return;
+        # otherwise create a new one
         else:
             expenses_folder.mkdir();
+        # change data into readable expense dictionary
         expense = { 
-                "Filename": [],
+                "Filename": data["filename"],
                 "DateTime": [],
-                "Type":[],
-                "Card":[],
-                "Total":[]
-        }
+                "Type": [],
+                "Card": [],
+                "Total": []
+        };
+        for index in range(len(data["filename"])):
+            # date + time
+            if(data['date'][index] == '' or data['date'][index] == None):
+                eel.error_message({"Exists": True, 
+                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:-4]} doesn't have a date!"});
+                eel.disable_convert();
+                return;
+            elif(data['time'][index] == '' or data['time'][index] == None):
+                eel.error_message({"Exists": True, 
+                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:-4]} doesn't have a time!"})
+                eel.disable_convert();
+                return;
+            else:
+                datetime = dateutil.parser.parse(data["date"][index] +" "+ data["time"][index]);
+                expense["DateTime"].append(datetime);
+            # make sure the value in type is all uppercase
+            if(data["type"][index] == ""):
+                expense["Type"].append(None);
+            else:
+                expense["Type"].append(data["type"][index].upper());
+            # change card and Total to number not string
+            if(data["card"][index] == ''):
+                expense["Card"].append(None);
+            else:
+                expense["Card"].append(int(data["card"][index]));
+            if(data["total"][index] == ''):
+                expense["Total"].append(None);
+            else:
+                # cant cast to int must cast to float ):(makes sense tho)
+                expense["Total"].append(float(data["total"][index]));
+        # check for old data
         if excel_files:
             df = pd.concat(pd.read_excel(excel_files[0], index_col=0, parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),ignore_index=True);
             for excel_file in excel_files[1:]:
@@ -303,130 +344,13 @@ class ReceiptScanner:
                                 parse_dates=["DateTime"],date_format="%m/%d/%y %I:%M:%S %p",sheet_name=None),
                                 ignore_index=True)],
                             ignore_index=True); 
+        # create new dataframe
         else:
             df = pd.DataFrame()
 
-        # digits = re.compile(r'receipt(\d+).jpg')
-
-        # for receipt in filter(
-        #     lambda file: int(digits.match(file.name)[1]) >= counter, 
-        #     receipts.iterdir()
-        # ):
-        for receipt in self.receipts.iterdir():
-            receipt_name = re.findall("receipt\d+",str(receipt))[0]
-            error_messages[receipt_name] = [];
-            image = receipt.read_bytes()
-            try:
-                response = client.detect_text(Image={"Bytes":image});
-            except:
-                error_messages["NO AWS"] = True;
-                eel.error_message(error_messages);
-                return;
-            detections = response["TextDetections"]
-            string = ''
-            for detection in detections:
-                textType = detection["Type"]
-                text = detection["DetectedText"]
-                if(textType.lower() == "line"):
-                    string += text + "\n";
-            dates = [];
-            switch = False;
-            for pattern in self.date_patterns:
-                pos_dates = re.findall(pattern,string)
-                if(len(pos_dates) != 0 ):
-                    for date in pos_dates:
-                        if(date not in dates):
-                            dates.append(date);
-                            switch = True;
-                    if(switch):
-                        break;
-            times = [];
-            switch = False;
-            for pattern in self.time_patterns:
-                pos_times = re.findall(pattern, string);
-                if(len(pos_times) != 0):
-                    for time in pos_times:
-                        if(time not in times): 
-                            if(not("pm" in time.lower() or "am"  in time.lower())):
-                                for i in range(len(time)-1,-1,-1):
-                                    if(time[i].isdigit()):
-                                        time = time[:i+1] 
-                                        break;
-                            times.append(time);
-                            switch= True;
-                if(switch):
-                    break;
-            cards = [];
-            switch = False;
-            for pattern in self.card_patterns:
-                pos_cards = re.findall(pattern,string.upper())
-                if(len(pos_cards) != 0):
-                    for card in pos_cards:
-                        if(card not in cards):
-                            cards.append(card[-4:]);
-                            switch = True;
-                    if(switch):
-                        break;
-            total_pos_totals = [];
-            for pattern in self.total_patterns:
-                pos_total = re.findall(pattern,string.upper())
-                for total in pos_total:
-                    total_pos_totals.append(total);
-            numbers = [];
-            for total in total_pos_totals:
-                str_number = '';
-                for char in total:
-                    if(char.isdigit()):
-                        str_number += char;
-                numbers.append(int(str_number));
-            expense["Filename"].append(receipt)
-            if(numbers):
-                total = max(numbers)/100;
-            else:
-                error_messages[receipt_name].append("Total was not found!")
-                has_errors= True;
-                total = None;
-            expense["Total"].append(total)
-            if(len(cards) != 0):
-                expense["Card"].append(int(cards[0]))
-            else:
-                error_messages[receipt_name].append("Card was not found!")
-                has_errors= True;
-                expense["Card"].append(None)
-            if(len(dates) > 0):
-                expense["DateTime"].append(dateutil.parser.parse(dates[0]+" "+times[0]));
-            else:
-                error_messages[receipt_name].append("Date was not found!");
-                has_errors= True;
-                expense["DateTime"].append(None);
-            if(
-                re.search("FUEL", string.upper()) != None 
-                or re.search("PUMP#\s*\d+", string.upper()) != None
-            ):
-                expense["Type"].append("GAS")
-            elif(
-                re.search("HOME\s*DEPOT",string.upper()) != None 
-                or re.search("HOW\s*DOERS\s*GET\s*MORE\s*DONE",string.upper()) != None
-            ):
-                expense["Type"].append("MATERIALS")
-            elif(re.search("OFFICE",string.upper())!= None 
-            ):
-                expense["Type"].append("OFFICE SUPPLIES");
-            elif(re.search("GROCERY",string.upper())!= None):
-                expense["Type"].append("GROCERIES");
-            else:
-                error_messages[receipt_name].append("Type not found!");
-                has_errors= True;
-                expense["Type"].append(None);
-
-        for key in error_messages:
-            if(error_messages[key]):
-                eel.error_message(error_messages);
-                break;
-
         if(len(expense["DateTime"]) > 0):
             database = pd.DataFrame(expense);
-            if(check):
+            if(check_duplicate):
                 df = pd.concat([df, database], ignore_index=True);
             else:
                 for index in database.index:
@@ -434,10 +358,10 @@ class ReceiptScanner:
                     drop_col = df.drop(columns=["Filename"])
                     if(not drop_col.equals(df.drop(columns=["Filename"]).drop_duplicates())):
                         string = str(database["Filename"][index])
-                        error_messages["Duplicate"].append(re.findall("receipt\d+",string)[0]);
+                        self.error_messages["Duplicate"].append(re.findall("receipt\d+",string)[0]);
                         df.drop(df.tail(1).index, inplace=True);
-                if(error_messages["Duplicate"] and not (has_errors)):
-                    eel.error_message(error_messages);
+                if(self.error_messages["Duplicate"]):
+                    eel.error_message(self.error_messages);
             df.sort_values(by="DateTime",inplace=True,ignore_index=True,na_position="first");
             for index, (y, year_df) in enumerate(df.groupby(pd.Grouper(key="DateTime", freq="Y"))):
                 excel_name = (y.strftime('%Y')+"expenses.xlsx")

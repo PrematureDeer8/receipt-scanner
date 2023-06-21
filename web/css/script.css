@@ -273,7 +273,7 @@ div.container.danger-bar{
 input[type="date"]:invalid, input[type="time"]:invalid{
     border: 2px solid red;
 }
-input[type="number"]:placeholder-shown{
+input[type="number"]:placeholder-shown , input[type="text"]:placeholder-shown{
     border: 2px solid rgb(199, 199, 3);
 }
 .highlight {

@@ -93,10 +93,10 @@ function display_parsed_images(correspondence){
             let overlay = document.createElement("div");
             overlay.className = "overlay";
             container.onclick = function(){
-                if(overlay.style.height == "35%"){
+                if(overlay.style.height == "100%"){
                     overlay.style.height = "0";
                 }else{
-                    overlay.style.height = "35%";
+                    overlay.style.height = "100%";
                 }
             }
             let p = document.createElement("p");
@@ -110,8 +110,10 @@ function display_parsed_images(correspondence){
                 let input = document.createElement("input");
                 if(element.toLowerCase() == "time" || element.toLowerCase() == "date"){
                     // <input type="Date or Time">
+                    input.id = "date"
                     input.type = element.toLowerCase();
                     if(input.type == "time"){
+                        input.id = "time"
                         input.step = "1";
                     }
                     if(parsed_image[name][element]["value"] != ""){
@@ -167,7 +169,26 @@ function display_parsed_images(correspondence){
                         }
                     }
 
+                }else if(element.toLowerCase() ==  'type'){
+                    input.type = "text";
+                    input.id = "type";
+                    if(parsed_image[name][element] != ""){
+                        input.value = parsed_image[name][element]
+                    }
+                    input.placeholder = "Purchase Type";
+                    input.onchange = function(){
+                        if(input.value === ""){
+                            container.classList.add("warning-bar");
+                        }else{
+                            container.classList.remove("warning-bar")
+                        }
+                    }
                 }else{
+                    if(element.toLowerCase() == "card"){
+                        input.id = "card";
+                    }else{
+                        input.id = "total";
+                    }
                     // <input type="number">
                     input.type = "number";
                     if(parsed_image[name][element]["value"] == ""){
@@ -188,17 +209,19 @@ function display_parsed_images(correspondence){
                 overlay.append(document.createElement("br"));
                 overlay.append(input);
                 overlay.append(document.createElement("br"));
-                let highlight = document.createElement("div");
-                highlight.className = "highlight";
-                let left = parsed_image[name][element]["Left"]*100;
-                let height =parsed_image[name][element]["Height"]*100;
-                highlight.style.left = String(left)+"%";
-                highlight.style.height = String(height)+"%";
-                let width = parsed_image[name][element]["Width"]*100;
-                let top = parsed_image[name][element]["Top"]*700;
-                highlight.style.top = String(top)+"px";
-                highlight.style.width = String(width)+"%";
-                polaroid.append(highlight);
+                if(element.toLowerCase() != "type"){
+                    let highlight = document.createElement("div");
+                    highlight.className = "highlight";
+                    let left = parsed_image[name][element]["Left"]*100;
+                    let height =parsed_image[name][element]["Height"]*100;
+                    highlight.style.left = String(left)+"%";
+                    highlight.style.height = String(height)+"%";
+                    let width = parsed_image[name][element]["Width"]*100;
+                    let top = parsed_image[name][element]["Top"]*700;
+                    highlight.style.top = String(top)+"px";
+                    highlight.style.width = String(width)+"%";
+                    polaroid.append(highlight);
+                }
             }
 
             container.append(p);
@@ -227,14 +250,39 @@ eel.expose(enable_convert)
 function enable_convert(){
     document.querySelector(".submit-ocr").disabled = false;
 }
-function submit_ocr() {
-    // console.log(document.querySelector(".submit-ocr"))
+//onlick of convert button
+function convert(){
     document.querySelector(".submit-ocr").disabled = true;
-    eel.ocr();
+    let overlays = document.querySelectorAll(".overlay");
+    let containers = document.querySelectorAll(".container");
+    //one big dictionary for python
+    let data  = {
+        "filename": [],
+        "date": [],
+        "time": [],
+        "type":[],
+        "card":[],
+        "total":[]
+    }
+    // arrays should match with index
+    for(let container of containers){
+        if(!(container.id === "")){
+            data["filename"].push(`web/images/parsed_receipts/${container.id}.jpg`);
+        }
+    }
+    for(let overlay of overlays){
+        for(let child of overlay.children){
+            console.log(child);
+            if(child.tagName == "INPUT"){
+                data[child.id].push(child.value);
+            }
+        }
+    }
+    eel.ocr(data);
 }
-eel.expose(reable_excel_button)
-function reable_excel_button(){
-    document.querySelector(".submit-ocr").disabled = false;
+eel.expose(disable_convert)
+function disable_convert(){
+    document.querySelector(".submit-ocr").disabled = True;
 }
 eel.expose(error_message)
 function error_message(errors){ 
