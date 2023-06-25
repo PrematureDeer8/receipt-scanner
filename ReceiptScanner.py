@@ -12,6 +12,7 @@ import pandas as pd
 import dateutil.parser
 import concurrent.futures
 import time
+import sys
 
 class ReceiptScanner:
     def __init__(self):
@@ -39,6 +40,10 @@ class ReceiptScanner:
             "Card": [],
             "Total":[]
             };
+        if(sys.platform == "darwin"):
+            self.os_constant = "/"
+        else:
+            self.os_constant = "\\"
         self.errors_exist = False;
     def parse_receipts(self, file_paths,counter=0):
         self.error_messages = {
@@ -56,10 +61,13 @@ class ReceiptScanner:
         images = [];
         for path in file_paths:
             if("%20" in path):
-                path = path.replace("%20"," ")
-            path = str(pathlib.PurePath("/"+path));
+                path = path.replace("%20"," ");
+            if(sys.platform == "darwin"):
+                path = str(pathlib.PurePath("/"+path));
+            else:
+                path = str(pathlib.PurePath(path));
             images.append(cv.imread(path));
-            self.correspondence[path[path.rfind("/")+1:]] = [];
+            self.correspondence[path[path.rfind(self.os_constant)+1:]] = [];
         #len(images) > 0
         if(images):
             child_parentImage = {};
@@ -156,7 +164,7 @@ class ReceiptScanner:
                         self.receipts.iterdir()
                     )
                 ):
-                    key = str(image)[str(image).rfind("/")+1:]
+                    key = str(image)[str(image).rfind(self.os_constant)+1:];        
                     detections = result["TextDetections"];
                     string = '';
                     bounding_boxes = {};
