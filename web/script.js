@@ -363,7 +363,7 @@ document.querySelector(".import-export").onclick = () => {
     if(bool){
         // document.querySelector(".import-export").style.backgroundColor = "rgb(193, 193, 193);"
         dialogbox.style.width = "0%";
-        dialogbox.style.opacity = "0%"
+        dialogbox.style.opacity = 0
         dialogbox.classList.remove("slide-right-small");
         void dialogbox.offsetWidth; // trigger reflow
         dialogbox.classList.add('slide-right-small-reverse'); // start animation  
@@ -371,7 +371,7 @@ document.querySelector(".import-export").onclick = () => {
     }else{
         // document.querySelector(".import-export").style.backgroundColor = "rgb(238, 237, 237);"
         dialogbox.style.width = "15%";
-        dialogbox.style.opacity = "100%"
+        dialogbox.style.opacity = 1
         dialogbox.classList.remove('slide-right-small-reverse'); // start animation
         void dialogbox.offsetWidth; // trigger reflow
         dialogbox.classList.add('slide-right-small'); // start animation  

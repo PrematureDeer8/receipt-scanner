@@ -162,6 +162,7 @@ img {
 .dialogbox{
     z-index: 3;
     width: 15%;
+    opacity: 1;
     display: block;
     /* float: right; */
     right: 0;
@@ -190,11 +191,11 @@ img {
     from {
         /* overflow: hidden; */
         width: 0%;
-        opacity: 10%;
+        opacity: 0;
         /* background-color: magenta; */
     }
     to {
-        opacity: 100%;
+        opacity: 1;
         width: 15%;
         /* background-color: turquoise; */
     }
@@ -280,7 +281,7 @@ input[type="number"]:placeholder-shown , input[type="text"]:placeholder-shown{
     position: absolute;
     z-index: 2;
     background-color: yellow;
-    opacity: 30%;
+    opacity: .3;
 }
 .highlight:hover {
     background-color: rgb(255, 90, 117);
