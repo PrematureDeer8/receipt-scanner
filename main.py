@@ -7,7 +7,11 @@ import pathlib
 import sys
 import json
 from ReceiptScanner import ReceiptScanner
-import sys
+import argparse
+
+# use development mode so that pathlib correct folder path(MacOS only)
+parser = argparse.ArgumentParser(description="Use --development mode when creating an app on MacOS");
+parser.add_argument("--development", action="store_true", default=False);
 
 if(sys.platform == "darwin"):
     eel.browsers.set_path('electron', 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron');
@@ -17,7 +21,8 @@ else:
     local = pathlib.Path.home() / "AppData" / "Local";  
 receipt_folder = local / "receipt-scanner";
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf");
-scanner = ReceiptScanner();
+# ru
+scanner = ReceiptScanner(development=parser.parse_args().development);
 if(receipt_folder.exists()):
     pref_file = receipt_folder / "pref.json";
     with open(pref_file, "r") as f:

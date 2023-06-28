@@ -15,9 +15,12 @@ import time
 import sys
 
 class ReceiptScanner:
-    def __init__(self):
+    def __init__(self, development=False):
         self.correspondence = {};
-        self.receipts = pathlib.Path(".") / 'web'/ 'images' / 'parsed_receipts';
+        if(development):
+            self.receipts = pathlib.Path("dist") / "main" / "web" / "images" / "parsed_receipts"
+        else:
+            self.receipts = pathlib.Path(".") / "web" / "images" / "parsed_receipts"
         self.date_patterns = ["[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{4}","[0,1]*[0-9]\\/[0-3][0-9]\\/[0-9]{2}"]
         self.time_patterns = ["\d+\:\d+\:*\d*\s*\D{2}","\d+\:\d+\:*\d*"];
         self.card_patterns = ["CARD\W+\s*\S*\d{4}","VISA\W+\d{4}","ACCOUNT\W+\d{4}","[X]{4}\s*[X]{4}\s*[X]{4}\s*\d{4}"]
@@ -43,6 +46,7 @@ class ReceiptScanner:
         if(sys.platform == "darwin"):
             self.os_constant = "/"
         else:
+            self.receipts = pathlib.Path(".") / "web" / 'images' / 'parsed_receipts';
             self.os_constant = "\\"
         self.errors_exist = False;
     def parse_receipts(self, file_paths,counter=0):
