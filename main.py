@@ -10,7 +10,7 @@ from ReceiptScanner import ReceiptScanner
 import argparse
 
 # use development mode so that pathlib correct folder path(MacOS only)
-parser = argparse.ArgumentParser(description="Use --development mode when creating an app on MacOS");
+parser = argparse.ArgumentParser(description="Use --development mode when pyinstalling on MacOS");
 parser.add_argument("--development", action="store_true", default=False);
 
 if(sys.platform == "darwin"):

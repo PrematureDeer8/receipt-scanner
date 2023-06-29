@@ -2,6 +2,7 @@ window.onscroll = function(){sticky()};
 
 let navbar = document.querySelector(".navigation");
 let stick = navbar.offsetTop;
+let error_bar = document.querySelector(".bar-container")
 
 function sticky(){
     if(window.pageYOffset >= stick){
@@ -287,6 +288,7 @@ function disable_convert(){
 eel.expose(error_message)
 function error_message(errors){ 
     let p = document.getElementById("message");
+    // bar container
     let parent = p.parentElement;
     parent.classList.remove('danger-bar');
     parent.classList.remove('warning-bar');
@@ -319,15 +321,26 @@ function error_message(errors){
     }else{
         let counter = 0;
         let text = "";
-        let precedence = false;
+        let receipt_error = {}
+        // console.log(errors);
         for(let key in errors){
             if(errors[key].length > 0){
                 for(let id of errors[key]){
                     let container = document.getElementById(String(id));
+                    // receipt_error hasn't initialized
+                    if(receipt_error[String(id)] === undefined){
+                        receipt_error[String(id)] = [];
+                        receipt_error[String(id)].push(key);
+                    }else{
+                        receipt_error[String(id)].push(key)
+                    }
                     if(container != undefined){
-                        if(key == "Date" || key == "Time"){
-                            container.classList.add("danger-bar")
-                        }else if(!container.classList.contains("danger-bar")){
+                        if(key == "Date"){
+                            container.classList.add("danger-bar");
+                        }else if(key == "Time"){
+                            container.classList.add("danger-bar");
+                        }
+                        else if(!container.classList.contains("danger-bar")){
                             container.classList.add("warning-bar")
                         }
                     }
@@ -335,12 +348,28 @@ function error_message(errors){
             }
             counter += 1;
         }
+        // Put errors into a readable string
+        for(let receipt in receipt_error){
+            if(receipt_error[receipt].length != 0){
+                text += receipt + " has no: ";
+                for(let error of receipt_error[receipt]){
+                    if(receipt_error[receipt].indexOf(error) == (receipt_error[receipt].length-1)){
+                        text += error + " "
+                    }else{
+                        text+= error +", "
+                    }
+                    
+                }
+                text += "\n"
+            }
+        }
         p.innerText = text;
         cls = " danger-bar"
     }
     
-    parent.className += cls
-    parent.style.display = "block"
+    parent.className += cls;
+    parent.style.display = "block";
+    parent.style.width = "93.8%";
 }
 eel.expose(progress_bar)
 function progress_bar(done){
@@ -406,5 +435,8 @@ function count_duplicates(){
 document.querySelector(".close").onclick = () => {
     document.getElementById('prefModal').style.display = 'none'
     eel.updateperferences(document.querySelector(".input").value,document.querySelector(".duplicate").checked)
+}
+document.querySelector(".close-error").onclick = () => {
+    document.querySelector(".close-error").parentElement.style.display = 'none';
 }
 
