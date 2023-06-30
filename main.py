@@ -83,5 +83,9 @@ def default_file_path():
 @eel.expose
 def default_count_dup():
     return scanner.preferences["count_duplicates"]
+@eel.expose
+def download_update():
+    scanner.preferences["version"] = update.version
+    update.download();
 
 eel.start("index.html", mode="electron", close_callback=store_preferences, size=(800,600));

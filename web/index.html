@@ -33,10 +33,11 @@
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <h2>Update Available</h2>
+            <hr>
             <p>Would you like to install?</p>
             <div style="float: right">
-                <button class="submit-ocr">yes</button>
-                <button class="noUpdate">no</button>
+                <button id="yes" class="submit-ocr" style="width: 40px;">yes</button>
+                <button id="no" class="noUpdate">no</button>
             </div>
         </div>
     </div>
@@ -67,5 +68,12 @@
     </div>
     <script src="/eel.js" ></script>
     <script src="script.js"></script>
+    <script>
+        eel.expose(close)
+        function close(){
+            let new_window = open(location, "_self")
+            new_window.top.close();
+        }
+    </script>
 </body>
 </html>

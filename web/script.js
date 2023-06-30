@@ -3,6 +3,15 @@ window.onscroll = function(){sticky()};
 let navbar = document.querySelector(".navigation");
 let stick = navbar.offsetTop;
 let error_bar = document.querySelector(".bar-container")
+let yes = document.querySelector("#yes");
+let no = document.querySelector("#no");
+yes.onclick = () => {
+    document.querySelector("#updateModal").style.display = "none";
+    eel.download_update();
+}
+no.onclick = () => {
+    document.querySelector("#updateModal").style.display = "none";
+}
 
 function sticky(){
     if(window.pageYOffset >= stick){
