@@ -57,6 +57,20 @@ img {
 .parsed{
     padding-right: 2%;
 }
+/* 'no' button for auto update */
+.noUpdate {
+    height: 30px;
+    width: 90px;
+    background-color: white;
+    color: red;
+    font-weight:500;
+    border: 2px solid red;
+    border-radius: 5px;
+}
+.noUpdate:hover:enabled{
+    background-color: red;
+    color: white;
+}
 .submit-ocr{
     height: 30px;
     width: 90px;

@@ -439,4 +439,9 @@ document.querySelector(".close").onclick = () => {
 document.querySelector(".close-error").onclick = () => {
     document.querySelector(".close-error").parentElement.style.display = 'none';
 }
-
+// modal for update
+eel.expose(update_prompt)
+function update_prompt(){
+    let modal = document.querySelector("#updateModal");
+    modal.style.display = "block"
+}

@@ -28,7 +28,8 @@ class ReceiptScanner:
         self.preferences = {
                         "file_path": str(pathlib.Path.home()),
                         "count_duplicates": False,
-                        "printerIP" : ""
+                        "printerIP" : "",
+                        "version": "v2.2.0"
         }
         self.client = boto3.client("rekognition",
                                     aws_access_key_id=config.ACCESS_KEY,

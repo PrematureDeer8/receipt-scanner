@@ -8,6 +8,7 @@ import sys
 import json
 from ReceiptScanner import ReceiptScanner
 import argparse
+from update import Update
 
 # use development mode so that pathlib correct folder path(MacOS only)
 parser = argparse.ArgumentParser(description="Use --development mode when pyinstalling on MacOS");
@@ -21,12 +22,14 @@ else:
     local = pathlib.Path.home() / "AppData" / "Local";  
 receipt_folder = local / "receipt-scanner";
 pattern = re.compile(r"[\w,-]+.jpg|[\w,-]+.png|[\w,-]+.pdf");
-# ru
 scanner = ReceiptScanner(development=parser.parse_args().development);
+# upload preferences
 if(receipt_folder.exists()):
     pref_file = receipt_folder / "pref.json";
     with open(pref_file, "r") as f:
         scanner.preferences = json.load(f);
+# initailize Update with current version
+update = Update(scanner.preferences["version"]);
 def store_preferences(page, web_sockets):
     if(local.exists()):
         if(not receipt_folder.exists()):
@@ -39,6 +42,9 @@ def store_preferences(page, web_sockets):
 
 
 eel.init("web");
+# available update
+if(update.updateAvailable()):
+    eel.update_prompt();
 @eel.expose
 def updateperferences(file_path, count_duplicates):
     scanner.preferences["file_path"] = file_path;
