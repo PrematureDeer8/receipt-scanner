@@ -9,8 +9,8 @@ class Update:
         self.http = urllib3.PoolManager();
         self.vCurrent = vCurrent;
         self.path = pathlib.Path(r"C:\ProgramData\Receipt-Scanner\setup-exes\setup.exe");
-        self.our_hash;
-        self.version;
+        self.our_hash = None;
+        self.version = None;
     def download(self, exe="mysetup.exe"):
         hash = hashlib.sha256();
         request = self.http.request(
