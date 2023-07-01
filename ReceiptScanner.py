@@ -47,7 +47,7 @@ class ReceiptScanner:
         if(sys.platform == "darwin"):
             self.os_constant = "/"
         else:
-            self.receipts = pathlib.Path(".") / "web" / 'images' / 'parsed_receipts';
+            # self.receipts = pathlib.Path(".") / "web" / 'images' / 'parsed_receipts';
             self.os_constant = "\\"
         self.errors_exist = False;
     def parse_receipts(self, file_paths,counter=0):
