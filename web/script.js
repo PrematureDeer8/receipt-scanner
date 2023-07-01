@@ -112,7 +112,7 @@ function display_parsed_images(correspondence){
             let p = document.createElement("p");
             p.innerText = name;
             let image = document.createElement("img");
-            image.src = "images/parsed_receipts/"+name+".jpg";
+            image.src = "file://C:/ProgramData/Receipt-Scanner/images/parsed_receipts/"+name+".jpg";
             image.className = "parsed";
             for(let element in parsed_image[name]){
                 let label = document.createElement("label");

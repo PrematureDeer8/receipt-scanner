@@ -9,25 +9,10 @@ class Update:
     def __init__(self,vCurrent):
         self.http = urllib3.PoolManager();
         self.vCurrent = vCurrent;
-        self.path = pathlib.Path(r"C:\ProgramData\Receipt-Scanner\setup-exes\setup.exe");
-        # create our path
-        if(not(self.path.exists())):
-           dir = pathlib.Path(r"C:\ProgramData");
-           for next_dir in str(self.path).split("\\")[2:]:
-                dir = dir / next_dir;
-                # print(dir);
-                if(not(dir.exists())):
-                    if("setup.exe" in str(dir)):
-                        # make the exe file
-                        dir.touch();
-                    else:
-                        # make the directories
-                        dir.mkdir();
-        else:
-            #make a blank exe
-            self.path.unlink();
-            self.path.touch();
-                   
+        self.path = pathlib.Path(r"C:\ProgramData\Receipt-Scanner\setup-exes");
+        setup = self.path / "setup.exe"
+        self.path.mkdir(parents=True, exist_ok=True);
+        setup.unlink(missing_ok=True);                  
         self.our_hash = None;
         self.version = None;
     def download(self, exe="mysetup.exe"):
