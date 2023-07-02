@@ -23,7 +23,8 @@ class Update:
             preload_content=False
         );
         # write exe
-        with open(self.path, "wb") as exe:
+        setup = self.path / "setup.exe"
+        with open(setup, "wb") as exe:
             # write exe chunk by chunk so that ram doesn't overload
             for chunk in request.stream(4096):
                 hash.update(chunk);
