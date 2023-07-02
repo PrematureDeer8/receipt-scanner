@@ -11,7 +11,7 @@ import argparse
 from update import Update
 # version very important
 
-VERSION = "v2.2.3"
+VERSION = "v2.2.5"
 
 # use development mode so that pathlib correct folder path(MacOS only)
 parser = argparse.ArgumentParser(description="Use --development mode when pyinstalling on MacOS");
