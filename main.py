@@ -9,6 +9,9 @@ import json
 from ReceiptScanner import ReceiptScanner
 import argparse
 from update import Update
+# version very important
+
+VERSION = "v2.2.3"
 
 # use development mode so that pathlib correct folder path(MacOS only)
 parser = argparse.ArgumentParser(description="Use --development mode when pyinstalling on MacOS");
@@ -29,7 +32,7 @@ if(receipt_folder.exists()):
     with open(pref_file, "r") as f:
         scanner.preferences = json.load(f);
 # initailize Update with current version
-update = Update(scanner.preferences["version"]);
+update = Update(VERSION);
 def store_preferences(page, web_sockets):
     if(local.exists()):
         if(not receipt_folder.exists()):
@@ -76,7 +79,8 @@ def ocr(data):
             error["message"] = f"Path {scanner.preferences['file_path']} does not exists! Proceding with default path."
             eel.error_message(error)
         scanner.amazon_ocr(check_duplicate=scanner.preferences["count_duplicates"], path=pathlib.Path.home(), data=data);
-    eel.enable_convert(); 
+    eel.enable_convert();
+    eel.convert_successful();
 @eel.expose
 def default_file_path():
     return scanner.preferences["file_path"]

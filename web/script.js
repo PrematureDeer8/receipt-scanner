@@ -2,7 +2,7 @@ window.onscroll = function(){sticky()};
 
 let navbar = document.querySelector(".navigation");
 let stick = navbar.offsetTop;
-let error_bar = document.querySelector(".bar-container")
+let error_bar = document.querySelector(".bar-container.error")
 let yes = document.querySelector("#yes");
 let no = document.querySelector("#no");
 yes.onclick = () => {
@@ -103,10 +103,10 @@ function display_parsed_images(correspondence){
             let overlay = document.createElement("div");
             overlay.className = "overlay";
             container.onclick = function(){
-                if(overlay.style.height == "100%"){
+                if(overlay.style.height == "40%"){
                     overlay.style.height = "0";
                 }else{
-                    overlay.style.height = "100%";
+                    overlay.style.height = "40%";
                 }
             }
             let p = document.createElement("p");
@@ -247,7 +247,9 @@ function display_parsed_images(correspondence){
     }
 }
 document.querySelector(".submit").onclick = () => {
-    document.querySelector(".bar-container").style.display = "none";
+    for(let bar of document.querySelectorAll(".bar-container")){
+        bar.style.display = "none";
+    }
     document.querySelector(".submit").disabled = true;
     let images = document.querySelectorAll(".image-content");
     let paths = [];
@@ -453,4 +455,13 @@ eel.expose(update_prompt)
 function update_prompt(){
     let modal = document.querySelector("#updateModal");
     modal.style.display = "block"
+}
+eel.expose(convert_successful)
+function convert_successful(){
+    let success = document.querySelector("#success")
+    success.innerText = "Convert completed!";
+    success.parentElement.style = "display: block; width: 93.8%; top: 110px;" ;
+}
+function close_success(){
+    document.querySelector("#success").parentElement.style.display = "none"
 }

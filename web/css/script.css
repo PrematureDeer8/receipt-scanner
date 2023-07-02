@@ -96,12 +96,12 @@ img {
     background-color: #fbbdbd;
 }
 .left-bar.warning-bar{
-    border-left: 6px solid rgb(241, 241, 0);
-    background-color: rgba(255, 255, 0, 0.396);
+    border-left: 6px solid rgb(194, 194, 0);
+    background-color: rgb(255, 255, 114);
 }
 .left-bar.success-bar{
-    border: 6px solid green;
-    background-color: rgba(32, 245, 39, 0.646);
+    border-left: 6px solid green;
+    background-color: rgb(58, 245, 64);
 }
 .bar-container{
     position: fixed;
