@@ -374,8 +374,12 @@ class ReceiptScanner:
         else:
             expenses_folder.mkdir();
         # change data into readable expense dictionary
+        files = [];
+        for file in data["filename"]:
+            name = file[:file.rfind(".")+1] + 'jpg';
+            files.append(name);
         expense = { 
-                "Filename": data["filename"],
+                "Filename": files,
                 "DateTime": [],
                 "Type": [],
                 "Card": [],
@@ -385,12 +389,12 @@ class ReceiptScanner:
             # date + time
             if(data['date'][index] == '' or data['date'][index] == None):
                 eel.error_message({"Exists": True, 
-                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:-4]} doesn't have a date!"});
+                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:data['filename'][index].rfind('.')]} doesn't have a date!"});
                 eel.disable_convert();
                 return;
             elif(data['time'][index] == '' or data['time'][index] == None):
                 eel.error_message({"Exists": True, 
-                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:-4]} doesn't have a time!"})
+                "message": f"{data['filename'][index][data['filename'][index].rfind('/')+1:data['filename'][index].rfind('.')]} doesn't have a time!"})
                 eel.disable_convert();
                 return;
             else:

@@ -4,14 +4,14 @@ const BrowserWindow = electron.BrowserWindow
 
 // var dialog = electron.dialog;
 
-// var path = dialog.showOpenDialog({
-//   properties: ['openDirectory']
-// });
+
+const options = { extraHeaders: 'pragma: no-cache\n' }
+
 
 let mainWindow
 
 function createWindow () {
-  mainWindow = new BrowserWindow({autoHideMenuBar: true,   webPreferences: {webSecurity: false}, width: 800, height: 600})
+  mainWindow = new BrowserWindow({autoHideMenuBar: true, v8CacheOptions: "none" ,  webPreferences: {webSecurity: false}, width: 800, height: 600})
   mainWindow.loadURL('http://localhost:8000/index.html');
   mainWindow.on('closed', function () {
     mainWindow = null

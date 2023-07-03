@@ -92,4 +92,6 @@ def download_update():
     scanner.preferences["version"] = update.version
     update.download();
 
-eel.start("index.html", mode="electron", close_callback=store_preferences, size=(800,600));
+eel.start("index.html", mode="electron", 
+          close_callback=store_preferences, size=(800,600), 
+          disable_cache=True);

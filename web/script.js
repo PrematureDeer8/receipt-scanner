@@ -1,5 +1,6 @@
 window.onscroll = function(){sticky()};
 
+let identifier = 0;
 let navbar = document.querySelector(".navigation");
 let stick = navbar.offsetTop;
 let error_bar = document.querySelector(".bar-container.error")
@@ -112,7 +113,11 @@ function display_parsed_images(correspondence){
             let p = document.createElement("p");
             p.innerText = name;
             let image = document.createElement("img");
-            image.src = "file://C:/ProgramData/Receipt-Scanner/images/parsed_receipts/"+name+".jpg";
+            // caches.delete(
+            //     "/images/parsed_receipts/"+name+".jpg"
+            // );
+            image.src = `file:///C:/ProgramData/Receipt-Scanner/images/parsed_receipts/${name}.jpg?=${identifier}`;
+            identifier += 1;
             image.className = "parsed";
             for(let element in parsed_image[name]){
                 let label = document.createElement("label");
