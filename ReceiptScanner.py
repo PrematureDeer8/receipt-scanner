@@ -173,6 +173,7 @@ class ReceiptScanner:
                         self.receipts.iterdir()
                     )
                 ):
+                    # path of the image
                     key = str(image)[str(image).rfind(self.os_constant)+1:];        
                     detections = result["TextDetections"];
                     string = '';
@@ -194,11 +195,30 @@ class ReceiptScanner:
                                 if(date in box_keys):
                                     datetime_date[datetime_obj] = date;
                                     dates.append(datetime_obj);
-                    receipt_dict = {}
+                    receipt_dict = {};
                     if(dates):
-                        value = max(set(dates), key=dates.count);
-                        bounding_boxes[datetime_date[value]]["value"] = value.strftime("%Y-%m-%d")
-                        receipt_dict["Date"] = bounding_boxes[datetime_date[value]];
+                        value = max(set(dates), key=dates.count)
+                        if(value.strftime("%m/%d/%y") in box_keys or 
+                           value.strftime("%m/%d/%Y") in box_keys):
+                            bounding_boxes[datetime_date[value]]["value"] = value.strftime("%Y-%m-%d");
+                            receipt_dict["Date"] = bounding_boxes[datetime_date[value]];
+                        else:
+                            # list our keys to see if 
+                            # we have a substring within our key
+                            # if we do then consider it a valid value
+                            # for else:
+                            '''if whole for loop runs without breaking then
+                                the else is triggered
+                            ''' 
+                            for box_key in box_keys:
+                                if(value.strftime("%m/%d/%y") in box_key or 
+                                   value.strftime("%m/%d/%Y") in box_key):
+                                    bounding_boxes[box_key]["value"] = value.strftime("%Y-%m-%d");
+                                    receipt_dict["Date"] = bounding_boxes[box_key];
+                                    break;
+                            else:
+                                receipt_dict["Date"] = self.NO_HIGHLIGHT;
+                                self.error_messages["Date"].append(key[:-4]);
                     else:
                         receipt_dict["Date"] = self.NO_HIGHLIGHT;
                         self.error_messages["Date"].append(key[:-4]);
@@ -220,9 +240,12 @@ class ReceiptScanner:
                             mm = hour[-2:]
                             if(mm in box_keys):
                                 bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] = bounding_boxes[hour.replace(" ", "")[:-2]]["Width"] + bounding_boxes[mm]["Width"] + (bounding_boxes[mm]["Left"]-(bounding_boxes[hour.replace(" ", "")[:-2]]["Left"]+bounding_boxes[hour.replace(" ", "")[:-2]]["Width"]));
-                        
-                        bounding_boxes[hour.replace(" ", "")[:-2]]["value"] = dateutil.parser.parse(hour).strftime("%H:%M:%S");
-                        receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
+                        try:
+                            bounding_boxes[hour.replace(" ", "")[:-2]]["value"] = dateutil.parser.parse(hour).strftime("%H:%M:%S");
+                            receipt_dict["Time"] = bounding_boxes[hour.replace(" ", "")[:-2]];
+                        except dateutil.parser._parser.ParserError:
+                            receipt_dict["Time"] = self.NO_HIGHLIGHT;
+                            self.error_messages["Time"].append(key[:-4]);
                     else:
                         receipt_dict["Time"] = self.NO_HIGHLIGHT;
                         self.error_messages["Time"].append(key[:-4]);
@@ -256,12 +279,28 @@ class ReceiptScanner:
                                     cards.append(card[-4:]);
                     if(cards):
                         card = max(set(cards), key=cards.count);
-                        bounding_boxes[str_cards[cards.index(card)]]["value"] = int(card);
-                        receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
+                        if(str_cards[cards.index(card)] in box_keys):
+                            bounding_boxes[str_cards[cards.index(card)]]["value"] = int(card);
+                            receipt_dict["Card"] = bounding_boxes[str_cards[cards.index(card)]];
+                        else:
+                            # list our keys to see if 
+                            # we have a substring within our key
+                            # if we do then consider it a valid value
+                            # for else:
+                            '''if whole for loop runs without breaking then
+                                the else is triggered
+                            ''' 
+                            for box_key in box_keys:
+                                if(card in box_key):
+                                    bounding_boxes[box_key]["value"] = int(card);
+                                    receipt_dict["Card"] = bounding_boxes[box_key];
+                                    break;
+                            else:
+                                receipt_dict["Card"] = self.NO_HIGHLIGHT;
+                                self.error_messages["Card"].append(key[:-4]);
                     else:
                         receipt_dict["Card"] = self.NO_HIGHLIGHT;
                         self.error_messages["Card"].append(key[:-4]);
-
                     totals = [];
                     numbers = [];
                     for pattern in self.total_patterns:
@@ -274,12 +313,31 @@ class ReceiptScanner:
                                     str_number += char;
                             numbers.append(int(str_number)/100);
                     if(numbers):
-                        total = totals[numbers.index(max(numbers))].split();
-                        bounding_boxes[total[-1]]["value"] = max(numbers);
-                        receipt_dict["Total"] = bounding_boxes[total[-1]];
+                        dollar_amount = max(numbers);
+                        total = totals[numbers.index(dollar_amount)].split();
+                        if(total[-1] in box_keys):
+                            bounding_boxes[total[-1]]["value"] = dollar_amount;
+                            receipt_dict["Total"] = bounding_boxes[total[-1]];
+                        else:
+                            # list our keys to see if 
+                            # we have a substring within our key
+                            # if we do then consider it a valid value
+                            # for else:
+                            '''if whole for loop runs without breaking then
+                                the else is triggered
+                            ''' 
+                            for box_key in box_keys:
+                                if(total[-1] in box_key):
+                                    bounding_boxes[box_key]["value"] = dollar_amount;
+                                    receipt_dict["Total"] = bounding_boxes[box_key];
+                                    break;
+                            else:
+                                receipt_dict["Total"] = self.NO_HIGHLIGHT;
+                                self.error_messages["Total"].append(key[:-4]);
                     else:
-                        receipt_dict = self.NO_HIGHLIGHT;
+                        receipt_dict["Total"] = self.NO_HIGHLIGHT;
                         self.error_messages["Total"].append(key[:-4]);
+        
                     self.correspondence[child_parentImage[key]].append({key[:-4] : receipt_dict});
             print(f"Multiprocessing takes {time.perf_counter() - start} seconds to complete!")
         #if we encountered any errors send them

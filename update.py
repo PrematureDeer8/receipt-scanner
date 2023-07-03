@@ -34,10 +34,10 @@ class Update:
         if(hash.hexdigest() == self.our_hash):
             # run our exe
             eel.close();
-            subprocess.Popen(self.path.absolute());
+            subprocess.Popen(setup.absolute());
         else:
             # delete our fake exe
-            self.path.unlink();
+            setup.unlink();
             eel.error_message({"Exists": True, "message": "Couldn't verify the exe! Update stopped!"})
     def updateAvailable(self):
         request = self.http.request(
